@@ -72,7 +72,7 @@ export default function Registration() {
   }
 
   return (
-    <div className="pageStyles">
+    <>
       <h1 className="h1Font">Your Profile</h1>
       <form css={formStyles} className="flexColumn" onSubmit={submitUserUpdate}>
         <div>
@@ -169,6 +169,6 @@ export default function Registration() {
         </div>
         <button className="buttonStyles">Save</button>
       </form>
-    </div>
+    </>
   );
 }

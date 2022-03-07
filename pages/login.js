@@ -13,7 +13,7 @@ const formStyles = css`
 
 export default function Login() {
   return (
-    <div className="pageStyles">
+    <>
       <h1 className="h1Font">Sign in</h1>
       <form
         css={formStyles}
@@ -38,6 +38,6 @@ export default function Login() {
         </div>
         <button className="buttonStyles">Sign in</button>
       </form>
-    </div>
+    </>
   );
 }

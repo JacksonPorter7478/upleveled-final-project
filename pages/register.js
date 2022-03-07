@@ -203,6 +203,6 @@ export default function Registration() {
         </div>
         <button className="buttonStyles">Sign up</button>
       </form>
-    </div>
+    </>
   );
 }
