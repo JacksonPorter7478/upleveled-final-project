@@ -90,7 +90,7 @@ export default function Registration() {
       <form
         css={formStyles}
         className="flexColumn"
-        onSubmit={submitRegistration}
+        onSubmit={() => submitRegistration()}
       >
         <div>
           <label>
