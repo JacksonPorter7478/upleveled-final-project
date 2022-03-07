@@ -80,17 +80,15 @@ export default function Registration() {
   }
 
   if (loading) return 'Creating your profile...';
-  if (error) {
-    return `There was an error with your registration. ${error.message} Please try again.`;
-  }
 
   return (
-    <div className="pageStyles">
+    <>
       <h1 className="h1Font">Sign up</h1>
+      {error && <h2>{error.message}</h2>}
       <form
         css={formStyles}
         className="flexColumn"
-        onSubmit={() => submitRegistration()}
+        onSubmit={submitRegistration}
       >
         <div>
           <label>
