@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+Tamma+2:wght@400;500&family=Inter:wght@300;400;500&family=Josefin+Sans:wght@100;200;300;400;500&family=Pacifico&family=Permanent+Marker&family=Space+Mono&display=swap');
+
+body {
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Baloo Tamma 2', sans-serif;
+}
+
+.h1Font {
+  font-family: 'Pacifico', sans-serif;
+  letter-spacing: 3px;
+}
+
+.pageStyles {
+  margin: 6vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.buttonStyles {
+  padding: 10px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  letter-spacing: 4px;
+  border: 2px solid powderblue;
+  border-radius: 4px;
+  background-color: transparent;
+}
+.buttonStyles:hover {
+  border: 2px solid cadetblue;
+  background-color: powderblue;
+}
