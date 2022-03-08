@@ -1,4 +1,8 @@
+import { useLazyQuery } from '@apollo/client';
 import { css } from '@emotion/react';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { loggedIn } from '../util/client';
 
 const formStyles = css`
   align-items: center;
@@ -12,27 +16,56 @@ const formStyles = css`
 `;
 
 export default function Login() {
+  const [email, setEmail] = useState('');
+  const [pw, setPw] = useState('');
+  const router = useRouter();
+  const [getLoggedInUser, { loading, data, error }] = useLazyQuery(loggedIn);
+
+  async function loginHandler(event) {
+    event.preventDefault();
+    try {
+      const userId = await getLoggedInUser({
+        variables: { email: email, pw: pw },
+      });
+      if (typeof userId.data.loggedInUser !== 'string') {
+        return;
+      }
+      await router.push(`/users/${userId.data.loggedInUser}`);
+    } catch (err) {
+      console.log('Error logging in: ' + err);
+    }
+  }
+
   return (
     <>
       <h1 className="h1Font">Sign in</h1>
+      {error && <h2>{error.message}</h2>}
       <form
         css={formStyles}
         className="flexColumn"
-        onSubmit={(event) => {
-          event.preventDefault();
-        }}
+        onSubmit={(event) => loginHandler(event)}
       >
         <div>
           <label>
-            Name
+            Email
             <br />
-            <input />
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.currentTarget.value)}
+            />
           </label>
           <br />
           <label>
             Password
             <br />
-            <input type="password" />
+            <input
+              type="password"
+              required
+              value={pw}
+              onChange={(event) => setPw(event.currentTarget.value)}
+            />
           </label>
           <br />
         </div>
