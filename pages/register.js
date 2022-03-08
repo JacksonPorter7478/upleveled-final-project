@@ -73,9 +73,11 @@ export default function Registration() {
       const user = await createNewUser({
         variables: { name: name, bio: bio, email: email, pw: pw },
       });
-      router.push('/profile').catch((err) => console.log('router: ' + err));
+      router
+        .push(`/users/${user.data.createUser.id}`)
+        .catch((err) => console.log('router: ' + err));
     } catch (err) {
-      console.log('this is the submitRegistration function ' + err);
+      console.log('Error creating the user: ' + err);
     }
   }
 
