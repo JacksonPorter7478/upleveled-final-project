@@ -57,6 +57,30 @@ export async function getUserById(id) {
   return user[0];
 }
 
+export async function getUserByEmail(email) {
+  const user = await sql`
+    SELECT
+      email
+    FROM
+      users
+    WHERE email= ${email}
+    `;
+  return user[0];
+}
+
+export async function getUserWithHashByEmail(email) {
+  const user = await sql`
+    SELECT
+      id,
+      email,
+      pwhash
+    FROM
+      users
+    WHERE email= ${email}
+    `;
+  return user[0];
+}
+
 export async function createUser(name, bio, email, pwhash) {
   const user = await sql`
     INSERT INTO users
