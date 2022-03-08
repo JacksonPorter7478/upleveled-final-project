@@ -1,21 +1,63 @@
-import { ApolloServer } from 'apollo-server';
+import { ApolloServer, UserInputError } from 'apollo-server';
 import bcrypt from 'bcrypt';
 import {
   createUser,
+  getUserByEmail,
   getUserById,
   getUsers,
+  getUserWithHashByEmail,
   updateUser,
 } from '../../util/database';
 import { typeDefs } from './schema';
 
 async function createUserWithHash(name, bio, email, pw) {
+  if (typeof name !== 'string' || !name) {
+    throw new UserInputError('Please provide a name');
+  }
+  if (typeof bio !== 'string' || !bio) {
+    throw new UserInputError('Please provide some information about yourself');
+  }
+  if (typeof email !== 'string' || !email) {
+    throw new UserInputError('Please provide a valid email address');
+  }
+  if (typeof pw !== 'string' || !pw) {
+    throw new UserInputError('Please provide a password');
+  }
+
+  if (await getUserByEmail(email)) {
+    throw new UserInputError(
+      'A profile with this email address already exists.',
+    );
+  }
+
   try {
     const pwhash = await bcrypt.hash(pw, 12);
     const user = await createUser(name, bio, email, pwhash);
     return user;
   } catch (err) {
-    throw new Error('Problem hashing the pw or creating the user: ' + err);
+    throw new Error('Problem creating the user: ' + err);
   }
+}
+
+async function userWithHash(email, pw) {
+  if (typeof email !== 'string' || !email) {
+    throw new UserInputError('Please type in your email address');
+  }
+  if (typeof pw !== 'string' || !pw) {
+    throw new UserInputError('Please provide a password');
+  }
+
+  const user = await getUserWithHashByEmail(email);
+  if (!user) {
+    throw new UserInputError('Login information incorrect');
+  }
+
+  const passwordCorrect = await bcrypt.compare(pw, user.pwhash);
+  if (!passwordCorrect) {
+    throw new UserInputError('Login information incorrect');
+  }
+
+  return user.id;
 }
 
 // Resolvers define the technique for fetching the types defined in the schema
@@ -26,6 +68,9 @@ const resolvers = {
     },
     user(parent, args) {
       return getUserById(Number(args.id));
+    },
+    loggedInUser(parents, args) {
+      return userWithHash(args.email, args.pw);
     },
   },
   Mutation: {
