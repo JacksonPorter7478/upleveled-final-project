@@ -20,6 +20,12 @@ export const usersQuery = gql`
   }
 `;
 
+export const loggedIn = gql`
+  query ($email: String!, $pw: String!) {
+    loggedInUser(email: $email, pw: $pw)
+  }
+`;
+
 export const createMutation = gql`
   mutation ($name: String!, $bio: String!, $email: String!, $pw: String!) {
     createUser(name: $name, bio: $bio, email: $email, pw: $pw) {
