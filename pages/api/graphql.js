@@ -1,64 +1,10 @@
-import { ApolloServer, UserInputError } from 'apollo-server';
-import bcrypt from 'bcrypt';
-import {
-  createUser,
-  getUserByEmail,
-  getUserById,
-  getUsers,
-  getUserWithHashByEmail,
-  updateUser,
-} from '../../util/database';
+import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
+import { ApolloServer } from 'apollo-server-express';
+import express from 'express';
+import http from 'http';
+import { getUserById, getUsers, updateUser } from '../../util/database';
+import { createUserWithHash, signIn } from './resolverFunctions';
 import { typeDefs } from './schema';
-
-async function createUserWithHash(name, bio, email, pw) {
-  if (typeof name !== 'string' || !name) {
-    throw new UserInputError('Please provide a name');
-  }
-  if (typeof bio !== 'string' || !bio) {
-    throw new UserInputError('Please provide some information about yourself');
-  }
-  if (typeof email !== 'string' || !email) {
-    throw new UserInputError('Please provide a valid email address');
-  }
-  if (typeof pw !== 'string' || !pw) {
-    throw new UserInputError('Please provide a password');
-  }
-
-  if (await getUserByEmail(email)) {
-    throw new UserInputError(
-      'A profile with this email address already exists.',
-    );
-  }
-
-  try {
-    const pwhash = await bcrypt.hash(pw, 12);
-    const user = await createUser(name, bio, email, pwhash);
-    return user;
-  } catch (err) {
-    throw new Error('Problem creating the user: ' + err);
-  }
-}
-
-async function userWithHash(email, pw) {
-  if (typeof email !== 'string' || !email) {
-    throw new UserInputError('Please type in your email address');
-  }
-  if (typeof pw !== 'string' || !pw) {
-    throw new UserInputError('Please provide a password');
-  }
-
-  const user = await getUserWithHashByEmail(email);
-  if (!user) {
-    throw new UserInputError('Login information incorrect');
-  }
-
-  const passwordCorrect = await bcrypt.compare(pw, user.pwhash);
-  if (!passwordCorrect) {
-    throw new UserInputError('Login information incorrect');
-  }
-
-  return user.id;
-}
 
 // Resolvers define the technique for fetching the types defined in the schema
 const resolvers = {
@@ -69,9 +15,6 @@ const resolvers = {
     user(parent, args) {
       return getUserById(Number(args.id));
     },
-    loggedInUser(parents, args) {
-      return userWithHash(args.email, args.pw);
-    },
   },
   Mutation: {
     createUser(parents, args) {
@@ -80,16 +23,53 @@ const resolvers = {
     updateUser(parents, args) {
       return updateUser(Number(args.id), args.name, args.bio, args.email);
     },
+    logAUserIn(parents, args, context) {
+      const [serializedCookie, userId] = signIn(args.email, args.pw);
+      // 4. add the cookie to the header
+      context.res.setHeader('Set-Cookie', serializedCookie);
+      return userId;
+    },
   },
 };
 
-// The ApolloServer constructor requires two parameters: a schema definition and a set of resolvers.
-const server = new ApolloServer({ typeDefs, resolvers });
+async function startApolloServer() {
+  // Required logic for integrating with Express
+  const app = express();
+  const httpServer = http.createServer(app);
+  // Same ApolloServer initialization, plus the drain plugin.
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context(ctx) {
+      return { ...ctx };
+    },
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  });
+  // More required logic for integrating with Express
+  await server.start();
+  server.applyMiddleware({
+    app,
+    // By default, apollo-server hosts its GraphQL endpoint at the
+    // server root. However, *other* Apollo Server packages host it at
+    // /graphql. Optionally provide this to match apollo-server.
+    path: '/',
+  });
 
-// The `listen` method launches a web server.
-server
-  .listen()
-  .then(() => {
-    console.log(`🚀  Server ready at port 4000`);
-  })
-  .catch((error) => console.log(error));
+  // Modified server startup
+  await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+}
+
+startApolloServer().catch((error) => console.log(error));
+
+// this was the code when i used apollo-server, not apollo-server-express
+// // The ApolloServer constructor requires two parameters: a schema definition and a set of resolvers.
+// const server = new ApolloServer({ typeDefs, resolvers });
+
+// // The `listen` method launches a web server.
+// server
+//   .listen()
+//   .then(() => {
+//     console.log(`🚀  Server ready at port 4000`);
+//   })
+//   .catch((error) => console.log(error));
