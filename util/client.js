@@ -2,9 +2,10 @@ import { ApolloClient, gql, InMemoryCache } from '@apollo/client';
 
 export const client = new ApolloClient({
   uri: 'http://localhost:4000',
+  credentials: 'same-origin',
   cache: new InMemoryCache(),
   headers: {
-    authorization: 'Bearer users',
+    authorization: 'Bearer',
     // add the login token here
   },
 });
@@ -21,8 +22,8 @@ export const usersQuery = gql`
 `;
 
 export const loggedIn = gql`
-  query ($email: String!, $pw: String!) {
-    loggedInUser(email: $email, pw: $pw)
+  mutation ($email: String!, $pw: String!) {
+    logAUserIn(email: $email, pw: $pw)
   }
 `;
 
