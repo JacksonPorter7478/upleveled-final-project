@@ -1,3 +1,4 @@
+import camelcaseKeys from 'camelcase-keys';
 import { config } from 'dotenv-safe';
 import postgres from 'postgres';
 
@@ -30,7 +31,7 @@ function connectOnceToDatabase() {
 // Connect to PostgreSQL
 const sql = connectOnceToDatabase();
 
-// get all users
+// USERS queries
 export async function getUsers() {
   const users = await sql`
     SELECT
@@ -102,4 +103,56 @@ export async function updateUser(id, name, bio, email) {
     RETURNING
       id, name, bio, email`;
   return updatedUserValue[0];
+}
+
+// SESSIONS
+
+export async function deleteExpiredSessions() {
+  const sessions = await sql`
+  DELETE FROM
+    sessions
+  WHERE
+    expiry < NOW()
+  RETURNING
+    *
+  `;
+  return sessions.map((session) => camelcaseKeys(session));
+}
+export async function deleteByToken(token) {
+  const session = await sql`
+  DELETE FROM
+    sessions
+  WHERE
+    token = ${token}
+  RETURNING
+    *
+  `;
+  return camelcaseKeys(session);
+}
+export async function getSessionByToken(token) {
+  await deleteExpiredSessions();
+  const session = await sql`
+  SELECT
+    *
+  FROM
+    sessions
+  WHERE
+    token = ${token}
+  `;
+
+  return camelcaseKeys(session[0]);
+}
+
+export async function createSession(token, userId) {
+  const session = await sql`
+  INSERT INTO sessions
+    (token, user_id)
+  VALUES
+    (${token}, ${userId})
+  RETURNING
+    id,
+    token
+  `;
+  await deleteExpiredSessions();
+  return camelcaseKeys(session[0]);
 }
