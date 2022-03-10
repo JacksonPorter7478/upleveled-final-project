@@ -58,17 +58,23 @@ const checkboxStyles = css`
   }
 `;
 
-export default function Registration() {
-  const [name, setName] = useState('');
-  const [bio, setBio] = useState('');
-  const [id, setId] = useState('');
+export default function Registration(props) {
+  const [name, setName] = useState(props.user.name);
+  const [bio, setBio] = useState(props.user.bio);
+  const [email, setEmail] = useState(props.user.email);
   const [updateUser] = useMutation(updateMutation);
+
+  const id = props.user.id;
 
   async function submitUserUpdate(event) {
     event.preventDefault();
-    const user = await updateUser({
-      variables: { id: id, name: name, bio: bio },
-    }).catch((error) => console.log(error));
+    try {
+      const user = await updateUser({
+        variables: { id: id, name: name, bio: bio, email: email },
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -84,10 +90,10 @@ export default function Registration() {
             />
           </label>
           <label>
-            <h2>ID</h2>
+            <h2>Email</h2>
             <input
-              value={id}
-              onChange={(event) => setId(event.currentTarget.value)}
+              value={email}
+              onChange={(event) => setEmail(event.currentTarget.value)}
             />
           </label>
           <h2>Interests</h2>
