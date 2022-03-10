@@ -79,5 +79,5 @@ export async function signIn(email, pw) {
   // 3. serialize the cookie
   const serializedCookie = await createSerializedSessionTokenCookie(token);
 
-  return [user.id, serializedCookie];
+  return [serializedCookie, user];
 }
