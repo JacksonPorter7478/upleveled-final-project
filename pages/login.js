@@ -1,8 +1,9 @@
-import { useLazyQuery } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { loggedIn } from '../util/client';
+import { getSessionByToken } from '../util/database';
 
 const formStyles = css`
   align-items: center;
@@ -73,4 +74,26 @@ export default function Login() {
       </form>
     </>
   );
+}
+
+export async function getServerSideProps(context) {
+  // check if there is already a valid token in the cookie
+  const token = context.req.cookies.sessionToken;
+
+  // if there is, redirect
+  if (token) {
+    const session = await getSessionByToken(token);
+    if (session) {
+      return {
+        redirect: {
+          destination: `/users/${session.userId}`,
+          permanent: false,
+        },
+      };
+    }
+  }
+  // otherwise render this login page
+  return {
+    props: {},
+  };
 }
