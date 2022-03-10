@@ -42,44 +42,43 @@ const resolvers = {
   },
 };
 
-async function startApolloServer() {
-  // Required logic for integrating with Express
-  const app = express();
-  const httpServer = http.createServer(app);
-  // Same ApolloServer initialization, plus the drain plugin.
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context(ctx) {
-      return { ...ctx };
-    },
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-  });
-  // More required logic for integrating with Express
-  await server.start();
-  server.applyMiddleware({
-    app,
-    // By default, apollo-server hosts its GraphQL endpoint at the
-    // server root. However, *other* Apollo Server packages host it at
-    // /graphql. Optionally provide this to match apollo-server.
-    path: '/',
-  });
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
-  // Modified server startup
-  await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+const apolloServer = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context({ res }) {
+    return { res };
+  },
+});
+
+const startServer = apolloServer.start();
+
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader(
+    'Access-Control-Allow-Origin',
+    'https://studio.apollographql.com',
+  );
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Methods, Access-Control-Allow-Origin, Access-Control-Allow-Credentials, Access-Control-Allow-Headers',
+  );
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'POST, GET, PUT, PATCH, DELETE, OPTIONS, HEAD',
+  );
+  if (req.method === 'OPTIONS') {
+    res.end();
+    return false;
+  }
+
+  await startServer;
+  await apolloServer.createHandler({
+    path: '/api/graphql',
+  })(req, res);
 }
-
-startApolloServer().catch((error) => console.log(error));
-
-// this was the code when i used apollo-server, not apollo-server-express
-// // The ApolloServer constructor requires two parameters: a schema definition and a set of resolvers.
-// const server = new ApolloServer({ typeDefs, resolvers });
-
-// // The `listen` method launches a web server.
-// server
-//   .listen()
-//   .then(() => {
-//     console.log(`🚀  Server ready at port 4000`);
-//   })
-//   .catch((error) => console.log(error));
