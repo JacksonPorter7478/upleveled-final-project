@@ -30,8 +30,8 @@ const resolvers = {
       context.res.setHeader('Set-Cookie', serializedCookie);
       return user;
     },
-    updateUser(parents, args) {
-      return updateUser(Number(args.id), args.name, args.bio, args.email);
+    async updateUser(parents, args) {
+      return await updateUser(Number(args.id), args.name, args.bio, args.email);
     },
     async logUserIn(parents, args, context) {
       const [serializedCookie, user] = await signIn(args.email, args.pw);
