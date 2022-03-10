@@ -1,12 +1,12 @@
 import { ApolloClient, gql, InMemoryCache } from '@apollo/client';
 
 export const client = new ApolloClient({
-  uri: 'http://localhost:4000',
-  credentials: 'same-origin',
+  uri: 'http://localhost:3000/api/graphql',
+  credentials: 'include',
   cache: new InMemoryCache(),
   headers: {
     authorization: 'Bearer',
-    // add the login token here
+    // add the login token here ?
   },
 });
 
@@ -23,7 +23,9 @@ export const usersQuery = gql`
 
 export const loggedIn = gql`
   mutation ($email: String!, $pw: String!) {
-    logAUserIn(email: $email, pw: $pw)
+    logUserIn(email: $email, pw: $pw) {
+      id
+    }
   }
 `;
 
@@ -39,11 +41,11 @@ export const createMutation = gql`
 `;
 
 export const updateMutation = gql`
-  mutation ($id: ID!, $name: String, $bio: String, $email: String) {
+  mutation ($id: ID!, $name: String!, $bio: String!, $email: String!) {
     updateUser(id: $id, name: $name, bio: $bio, email: $email) {
       id
-      bio
       name
+      bio
       email
     }
   }
