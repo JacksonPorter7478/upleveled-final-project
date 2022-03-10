@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
 import { useState } from 'react';
 import { updateMutation } from '../util/client';
+import { getSessionByToken, getUserById } from '../util/database';
 
 const formStyles = css`
   text-align: justify;
@@ -177,4 +178,30 @@ export default function Registration(props) {
       </form>
     </>
   );
+}
+
+export async function getServerSideProps(context) {
+  // check if there is already a valid token in the cookie
+  const token = context.req.cookies.sessionToken;
+
+  // if there is, pass on the user
+  if (token) {
+    const session = await getSessionByToken(token);
+    if (session) {
+      const user = await getUserById(session.userId);
+      return {
+        props: {
+          user,
+        },
+      };
+    }
+  }
+
+  // if they aren't logged in, redirect
+  return {
+    redirect: {
+      destination: '/',
+      permanent: false,
+    },
+  };
 }
