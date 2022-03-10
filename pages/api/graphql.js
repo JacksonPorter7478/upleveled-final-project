@@ -1,8 +1,10 @@
-import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
-import { ApolloServer } from 'apollo-server-express';
-import express from 'express';
-import http from 'http';
-import { getUserById, getUsers, updateUser } from '../../util/database';
+import { ApolloServer } from 'apollo-server-micro';
+import {
+  getUserById,
+  getUserByToken,
+  getUsers,
+  updateUser,
+} from '../../util/database';
 import { createUserWithHash, signIn } from './resolverFunctions';
 import { typeDefs } from './schema';
 
@@ -17,17 +19,25 @@ const resolvers = {
     },
   },
   Mutation: {
-    createUser(parents, args) {
-      return createUserWithHash(args.name, args.bio, args.email, args.pw);
+    async createUser(parents, args, context) {
+      const [serializedCookie, user] = await createUserWithHash(
+        args.name,
+        args.bio,
+        args.email,
+        args.pw,
+      );
+      // add the cookie to the header
+      context.res.setHeader('Set-Cookie', serializedCookie);
+      return user;
     },
     updateUser(parents, args) {
       return updateUser(Number(args.id), args.name, args.bio, args.email);
     },
-    logAUserIn(parents, args, context) {
-      const [serializedCookie, userId] = signIn(args.email, args.pw);
-      // 4. add the cookie to the header
+    async logUserIn(parents, args, context) {
+      const [serializedCookie, user] = await signIn(args.email, args.pw);
+      // add the cookie to the header
       context.res.setHeader('Set-Cookie', serializedCookie);
-      return userId;
+      return { id: user.id };
     },
   },
 };
