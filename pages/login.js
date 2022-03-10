@@ -20,18 +20,18 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const router = useRouter();
-  const [getLoggedInUser, { loading, data, error }] = useLazyQuery(loggedIn);
+  const [getLoggedInUser, { loading, data, error }] = useMutation(loggedIn);
 
   async function loginHandler(event) {
     event.preventDefault();
     try {
       const userId = await getLoggedInUser({
         variables: { email: email, pw: pw },
-      });
-      if (typeof userId.data.loggedInUser !== 'string') {
+      }).catch((err) => console.log(err));
+      if (typeof userId.data.logUserIn.id !== 'string') {
         return;
       }
-      await router.push(`/users/${userId.data.loggedInUser}`);
+      await router.push(`/users/${userId.data.logUserIn.id}`);
     } catch (err) {
       console.log('Error logging in: ' + err);
     }
