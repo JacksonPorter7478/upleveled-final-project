@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { UserInputError } from 'apollo-server-express';
+import { UserInputError } from 'apollo-server-core';
 import bcrypt from 'bcrypt';
 import { createSerializedSessionTokenCookie } from '../../util/cookies';
 import {
@@ -32,19 +32,24 @@ export async function createUserWithHash(name, bio, email, pw) {
     );
   }
 
-  // hash the pw and create a user in the database
   try {
+    // hash the pw and create a user in the database
     const pwhash = await bcrypt.hash(pw, 12);
     const user = await createUser(name, bio, email, pwhash);
-    return user;
+
+    // 1. create a unique token
+    const token = crypto.randomBytes(64).toString('base64');
+    // 2. create a session
+    const session = await createSession(token, user.id);
+    // 3. serialize the cookie
+    const serializedCookie = await createSerializedSessionTokenCookie(token);
+
+    return [serializedCookie, user];
   } catch (err) {
     throw new Error('Problem creating the user: ' + err);
   }
 }
 
-// The login mutation resolver decides whether or not the password is correct.
-// If it isn't, it rejects the request. If the password is correct, it sets a cookie
-// on the response header and returns true.
 // sign in a user
 export async function signIn(email, pw) {
   // check that email and pw are non-empty strings
