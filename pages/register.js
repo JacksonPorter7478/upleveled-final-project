@@ -3,6 +3,7 @@ import { css } from '@emotion/react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { createMutation } from '../util/client';
+import { getSessionByToken } from '../util/database';
 
 const formStyles = css`
   text-align: justify;
@@ -205,4 +206,26 @@ export default function Registration() {
       </form>
     </>
   );
+}
+
+export async function getServerSideProps(context) {
+  // check if there is already a valid token in the cookie
+  const token = context.req.cookies.sessionToken;
+
+  // if there is, redirect
+  if (token) {
+    const session = await getSessionByToken(token);
+    if (session) {
+      return {
+        redirect: {
+          destination: `/users/${session.userId}`,
+          permanent: false,
+        },
+      };
+    }
+  }
+  // otherwise render this login page
+  return {
+    props: {},
+  };
 }
