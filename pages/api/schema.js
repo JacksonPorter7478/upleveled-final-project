@@ -9,6 +9,9 @@ export const typeDefs = gql`
     email: String!
     pwhash: String!
   }
+  type Id {
+    id: ID
+  }
 
   type Query {
     users: [User]
@@ -17,7 +20,7 @@ export const typeDefs = gql`
 
   type Mutation {
     createUser(name: String!, bio: String!, email: String!, pw: String!): User
-    updateUser(id: ID!, name: String, bio: String, email: String): User
-    logAUserIn(email: String!, pw: String!): ID
+    updateUser(id: ID!, name: String!, bio: String!, email: String!): User
+    logUserIn(email: String!, pw: String!): Id
   }
 `;
