@@ -4,7 +4,7 @@ export function createSerializedSessionTokenCookie(token) {
   // check if we are in production (Heroku)
   const isProduction = process.env.NODE_ENV === 'production';
 
-  const maxAge = 60 * 10; // 10 minutes
+  const maxAge = 60 * 60 * 24; // 24h
 
   return serialize('sessionToken', token, {
     maxAge: maxAge,
