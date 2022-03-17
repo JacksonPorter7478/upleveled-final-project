@@ -11,9 +11,9 @@ import {
 } from '../util/database';
 import {
   addActivity,
+  deleteMutation,
   deleteUserActivities,
   updateMutation,
-  updateUserActivities,
 } from './api/client';
 
 const formStyles = css`
@@ -71,6 +71,17 @@ const checkboxStyles = css`
   }
 `;
 
+const deleteStyles = css`
+  padding: 2px 6px;
+  margin-top: 50px;
+  border: 2px solid black;
+  border-radius: 4px;
+  background-color: transparent;
+  :hover {
+    border: 2px solid cadetblue;
+  }
+`;
+
 export default function Registration(props) {
   const [name, setName] = useState(props.user.name);
   const [bio, setBio] = useState(props.user.bio);
@@ -81,6 +92,7 @@ export default function Registration(props) {
       return { id: a.id, checked: activities.some((b) => b.id === a.id) };
     }),
   );
+  const [deleteAccount] = useMutation(deleteMutation);
   const [deleteActivities] = useMutation(deleteUserActivities);
   const [updateUser] = useMutation(updateMutation);
   const [updateActivities] = useMutation(addActivity);
@@ -119,6 +131,15 @@ export default function Registration(props) {
       router.push(`/users/${id}`).catch((err) => console.log(err));
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  async function deleteUserAccount() {
+    try {
+      const user = await deleteAccount({ variables: { id: id } });
+      router.push('/goodbye').catch((err) => console.log(err));
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -186,6 +207,9 @@ export default function Registration(props) {
         </div>
         <button className="buttonStyles">Save</button>
       </form>
+      <button css={deleteStyles} onClick={() => deleteUserAccount()}>
+        Delete my profile
+      </button>
     </>
   );
 }
