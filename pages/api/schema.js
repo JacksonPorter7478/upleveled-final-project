@@ -12,23 +12,20 @@ export const typeDefs = gql`
   type Id {
     id: ID
   }
+  type Name {
+    name: String
+  }
   type UserActivities {
     userId: ID
     activityId: ID
   }
   type Error {
-    error: String!
-  }
-  type Match {
-    name: String!
-    bio: String!
-    activities: String!
+    error: String
   }
 
   type Query {
     users: [User]
     user(id: ID!): User
-    matchingUsers(activities: String!): [Match]
   }
 
   type Mutation {
@@ -47,5 +44,7 @@ export const typeDefs = gql`
     addUserActivities(userId: ID!, activityId: ID!): UserActivities
 
     deleteAllUserActivities(userId: ID!): Id
+
+    deleteUser(id: ID!): Name
   }
 `;
