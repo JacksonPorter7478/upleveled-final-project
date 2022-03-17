@@ -112,6 +112,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 // TODOS
 
 // X match users
-// O Chat
 // X context
 // X authentication
+// O Chat
+// O error handling: display only custom messages, not full error message
+// O add <Head> to every page

@@ -91,7 +91,7 @@ export async function signIn(email, pw, csrfToken) {
   // 1. create a unique token
   const token = crypto.randomBytes(64).toString('base64');
   // 2. create a session
-  const session = await createSession(token, user.id);
+  await createSession(token, user.id);
   // 3. serialize the cookie
   const serializedCookie = await createSerializedSessionTokenCookie(token);
 
