@@ -3,6 +3,7 @@ import { ApolloServer } from 'apollo-server-micro';
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
   deleteUserActivities,
+  deleteUserFromDb,
   getSessionByToken,
   getUserById,
   getUsers,
@@ -62,6 +63,7 @@ const resolvers = {
       args: Args,
       context: { res: ServerResponse },
     ) {
+      console.log('err');
       const [serializedCookie, user] = await signIn(
         args.email,
         args.pw,
@@ -90,6 +92,13 @@ const resolvers = {
         return context.error;
       }
       return await deleteUserActivities(args.userId);
+    },
+    async deleteUser(parent: void, args: Args, context: { error: string }) {
+      if (context.error) {
+        return context.error;
+      }
+      const deletedUser = await deleteUserFromDb(args.id);
+      return { name: deletedUser };
     },
   },
 };
