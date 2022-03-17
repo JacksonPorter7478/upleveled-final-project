@@ -1,7 +1,6 @@
 import { css } from '@emotion/react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { client, usersQuery } from '../util/client';
 
 const homeStyles = css`
   height: 90vh;
