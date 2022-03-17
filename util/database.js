@@ -85,6 +85,61 @@ export async function createSession(token, userId) {
   return camelcaseKeys(session[0]);
 }
 
+// ACTIVITIES
+
+export async function getActivities() {
+  const activities = await sql`
+    SELECT
+      *
+    FROM
+      activities`;
+  return activities;
+}
+
+// USER_ACTIVITIES
+
+export async function insertIntoUserActivities(userId, activityId) {
+  const userActivities = await sql`
+    INSERT INTO user_activities
+      ( user_id, activity_id )
+    VALUES
+      ( ${userId}, ${activityId} )
+    RETURNING
+      user_id
+      activity_id
+  `;
+  return camelcaseKeys(userActivities[0]);
+}
+
+export async function deleteUserActivities(userId) {
+  await sql`
+    DELETE FROM
+      user_activities
+    WHERE
+      user_id = ${userId}
+    RETURNING
+      *
+  `;
+  return { id: userId };
+}
+
+export async function getActivitiesByUserId(userId) {
+  const activities = await sql`
+  SELECT
+    activities.id,
+    activities.title
+  FROM
+    user_activities,
+    activities
+  WHERE
+    user_id = ${userId} AND
+    activities.id = activity_id
+
+  `;
+  const userActivities = activities.filter((a) => a.id);
+  return camelcaseKeys(userActivities);
+}
+
 // USERS queries
 
 export async function getUsers() {
@@ -182,57 +237,16 @@ export async function updateUser(id, name, bio) {
   return updatedUserValue[0];
 }
 
-// ACTIVITIES
-
-export async function getActivities() {
-  const activities = await sql`
-    SELECT
-      *
-    FROM
-      activities`;
-  return activities;
-}
-
-// USER_ACTIVITIES
-
-export async function insertIntoUserActivities(userId, activityId) {
-  const userActivities = await sql`
-    INSERT INTO user_activities
-      ( user_id, activity_id )
-    VALUES
-      ( ${userId}, ${activityId} )
-    RETURNING
-      user_id
-      activity_id
-  `;
-  return camelcaseKeys(userActivities[0]);
-}
-
-export async function deleteUserActivities(userId) {
-  await sql`
-    DELETE FROM
-      user_activities
-    WHERE
-      user_id = ${userId}
-    RETURNING
-      *
-  `;
-  return { id: userId };
-}
-
-export async function getActivitiesByUserId(userId) {
-  const activities = await sql`
-  SELECT
-    activities.id,
-    activities.title
-  FROM
-    user_activities,
-    activities
+export async function deleteUserFromDb(id) {
+  const name = await getUserById(id);
+  const user = await sql`
+  DELETE FROM
+    users
   WHERE
-    user_id = ${userId} AND
-    activities.id = activity_id
-
+    id = ${id}
+  RETURNING
+    *
   `;
-  const userActivities = activities.filter((a) => a.id);
-  return camelcaseKeys(userActivities);
+  await deleteUserActivities(id);
+  return name.name;
 }
