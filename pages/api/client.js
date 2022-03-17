@@ -20,16 +20,6 @@ export const usersQuery = gql`
   }
 `;
 
-export const matchingQuery = gql`
-  query ($activities: String!) {
-    matchingUsers(activities: $activities) {
-      name
-      bio
-      activities
-    }
-  }
-`;
-
 export const loggedIn = gql`
   mutation ($email: String!, $pw: String!, $csrfToken: String!) {
     logUserIn(email: $email, pw: $pw, csrfToken: $csrfToken) {
@@ -85,6 +75,14 @@ export const deleteUserActivities = gql`
   mutation ($userId: ID!) {
     deleteAllUserActivities(userId: $userId) {
       id
+    }
+  }
+`;
+
+export const deleteMutation = gql`
+  mutation ($id: ID!) {
+    deleteUser(id: $id) {
+      name
     }
   }
 `;
