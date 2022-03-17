@@ -31,7 +31,62 @@ function connectOnceToDatabase() {
 // Connect to PostgreSQL
 const sql = connectOnceToDatabase();
 
+// SESSIONS
+
+export async function deleteExpiredSessions() {
+  const sessions = await sql`
+  DELETE FROM
+    sessions
+  WHERE
+    expiry < NOW()
+  RETURNING
+    *
+  `;
+  return sessions.map((session) => camelcaseKeys(session));
+}
+
+export async function deleteByToken(token) {
+  const session = await sql`
+  DELETE FROM
+    sessions
+  WHERE
+    token = ${token}
+  RETURNING
+    *
+  `;
+  return camelcaseKeys(session);
+}
+
+export async function getSessionByToken(token) {
+  const session = await sql`
+  SELECT
+    *
+  FROM
+    sessions
+  WHERE
+    token = ${token} AND
+    expiry > NOW()
+  `;
+
+  return camelcaseKeys(session[0]);
+}
+
+export async function createSession(token, userId) {
+  const session = await sql`
+  INSERT INTO sessions
+    (token, user_id)
+  VALUES
+    (${token}, ${userId})
+  RETURNING
+    id,
+    token
+  `;
+  await deleteExpiredSessions();
+  return camelcaseKeys(session[0]);
+}
+
 // USERS queries
+
 export async function getUsers() {
   const users = await sql`
     SELECT
@@ -82,6 +137,28 @@ export async function getUserWithHashByEmail(email) {
   return user[0];
 }
 
+export async function getFullUserByToken(token) {
+  if (!token) return undefined;
+
+  await deleteExpiredSessions();
+  const user = await sql`
+  SELECT
+    users.id,
+    users.name,
+    users.bio
+  FROM
+    sessions,
+    users
+  WHERE
+    sessions.token = ${token} AND
+    sessions.user_id = users.id
+  `;
+
+  return camelcaseKeys(user[0]);
+}
+
+// USER mutations
+
 export async function createUser(name, bio, email, pwhash) {
   const user = await sql`
     INSERT INTO users
@@ -93,11 +170,11 @@ export async function createUser(name, bio, email, pwhash) {
   return user[0];
 }
 
-export async function updateUser(id, name, bio, email) {
+export async function updateUser(id, name, bio) {
   const updatedUserValue = await sql`
     UPDATE users
     SET
-      name = ${name}, bio = ${bio}, email= ${email}
+      name = ${name}, bio = ${bio}
     WHERE
       id = ${id}
     RETURNING
@@ -105,54 +182,57 @@ export async function updateUser(id, name, bio, email) {
   return updatedUserValue[0];
 }
 
-// SESSIONS
+// ACTIVITIES
 
-export async function deleteExpiredSessions() {
-  const sessions = await sql`
-  DELETE FROM
-    sessions
-  WHERE
-    expiry < NOW()
-  RETURNING
-    *
-  `;
-  return sessions.map((session) => camelcaseKeys(session));
+export async function getActivities() {
+  const activities = await sql`
+    SELECT
+      *
+    FROM
+      activities`;
+  return activities;
 }
-export async function deleteByToken(token) {
-  const session = await sql`
-  DELETE FROM
-    sessions
-  WHERE
-    token = ${token}
-  RETURNING
-    *
+
+// USER_ACTIVITIES
+
+export async function insertIntoUserActivities(userId, activityId) {
+  const userActivities = await sql`
+    INSERT INTO user_activities
+      ( user_id, activity_id )
+    VALUES
+      ( ${userId}, ${activityId} )
+    RETURNING
+      user_id
+      activity_id
   `;
-  return camelcaseKeys(session);
+  return camelcaseKeys(userActivities[0]);
 }
-export async function getSessionByToken(token) {
-  await deleteExpiredSessions();
-  const session = await sql`
+
+export async function deleteUserActivities(userId) {
+  await sql`
+    DELETE FROM
+      user_activities
+    WHERE
+      user_id = ${userId}
+    RETURNING
+      *
+  `;
+  return { id: userId };
+}
+
+export async function getActivitiesByUserId(userId) {
+  const activities = await sql`
   SELECT
-    *
+    activities.id,
+    activities.title
   FROM
-    sessions
+    user_activities,
+    activities
   WHERE
-    token = ${token}
-  `;
+    user_id = ${userId} AND
+    activities.id = activity_id
 
-  return camelcaseKeys(session[0]);
-}
-
-export async function createSession(token, userId) {
-  const session = await sql`
-  INSERT INTO sessions
-    (token, user_id)
-  VALUES
-    (${token}, ${userId})
-  RETURNING
-    id,
-    token
   `;
-  await deleteExpiredSessions();
-  return camelcaseKeys(session[0]);
+  const userActivities = activities.filter((a) => a.id);
+  return camelcaseKeys(userActivities);
 }
