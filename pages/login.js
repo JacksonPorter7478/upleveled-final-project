@@ -1,9 +1,11 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { loggedIn } from '../util/client';
+import { createCsrfToken } from '../util/auth';
 import { getSessionByToken } from '../util/database';
+import { loggedIn } from './api/client';
 
 const formStyles = css`
   align-items: center;
@@ -16,18 +18,19 @@ const formStyles = css`
   }
 `;
 
-export default function Login() {
+export default function Login(props) {
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const router = useRouter();
-  const [getLoggedInUser, { loading, data, error }] = useMutation(loggedIn);
+  const [getLoggedInUser, { loading, error }] = useMutation(loggedIn);
 
   async function loginHandler(event) {
     event.preventDefault();
     try {
       const userId = await getLoggedInUser({
-        variables: { email: email, pw: pw },
+        variables: { email: email, pw: pw, csrfToken: props.csrfToken },
       }).catch((err) => console.log(err));
+
       if (typeof userId.data.logUserIn.id !== 'string') {
         return;
       }
@@ -36,6 +39,8 @@ export default function Login() {
       console.log('Error logging in: ' + err);
     }
   }
+
+  if (loading) return 'Loading...';
 
   return (
     <>
@@ -71,12 +76,29 @@ export default function Login() {
           <br />
         </div>
         <button className="buttonStyles">Sign in</button>
+        <Link href="/register">
+          <a>Go to Signup</a>
+        </Link>
       </form>
     </>
   );
 }
 
 export async function getServerSideProps(context) {
+  // Redirect from HTTP to HTTPS on Heroku
+  if (
+    context.req.headers.host &&
+    context.req.headers['x-forwarded-proto'] &&
+    context.req.headers['x-forwarded-proto'] !== 'https'
+  ) {
+    return {
+      redirect: {
+        destination: `https://${context.req.headers.host}/login`,
+        permanent: true,
+      },
+    };
+  }
+
   // check if there is already a valid token in the cookie
   const token = context.req.cookies.sessionToken;
 
@@ -92,8 +114,10 @@ export async function getServerSideProps(context) {
       };
     }
   }
-  // otherwise render this login page
+  // otherwise create a csrf token and render this login page
   return {
-    props: {},
+    props: {
+      csrfToken: createCsrfToken(),
+    },
   };
 }
