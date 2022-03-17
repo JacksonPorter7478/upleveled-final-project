@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { UserInputError } from 'apollo-server-core';
 import bcrypt from 'bcrypt';
+import { verifyCsrfToken } from '../../util/auth';
 import { createSerializedSessionTokenCookie } from '../../util/cookies';
 import {
   createSession,
@@ -10,7 +11,7 @@ import {
 } from '../../util/database';
 
 // create a new user
-export async function createUserWithHash(name, bio, email, pw) {
+export async function createUserWithHash(name, bio, email, pw, csrfToken) {
   // make that inputs are non-empty strings
   if (typeof name !== 'string' || !name) {
     throw new UserInputError('Please provide a name');
@@ -23,6 +24,14 @@ export async function createUserWithHash(name, bio, email, pw) {
   }
   if (typeof pw !== 'string' || !pw) {
     throw new UserInputError('Please provide a password');
+  }
+  if (typeof csrfToken !== 'string' || !csrfToken) {
+    throw new Error('CSRF token not provided');
+  }
+  // check the csrf token
+  const csrfTokenMatches = verifyCsrfToken(csrfToken);
+  if (!csrfTokenMatches) {
+    throw new Error('Invalid CSRF token');
   }
 
   // error if the email is already connected to a user
@@ -51,7 +60,7 @@ export async function createUserWithHash(name, bio, email, pw) {
 }
 
 // sign in a user
-export async function signIn(email, pw) {
+export async function signIn(email, pw, csrfToken) {
   // check that email and pw are non-empty strings
   if (typeof email !== 'string' || !email) {
     throw new UserInputError('Please type in your email address');
@@ -59,7 +68,14 @@ export async function signIn(email, pw) {
   if (typeof pw !== 'string' || !pw) {
     throw new UserInputError('Please provide a password');
   }
-
+  if (typeof csrfToken !== 'string' || !csrfToken) {
+    throw new Error('Please provide a csrf token');
+  }
+  // check the csrf token
+  const csrfTokenMatches = verifyCsrfToken(csrfToken);
+  if (!csrfTokenMatches) {
+    throw new Error('Invalid CSRF token');
+  }
   // get the user from the database (error if user doesn't exist)
   const user = await getUserWithHashByEmail(email);
   if (!user) {
