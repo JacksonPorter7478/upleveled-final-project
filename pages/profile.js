@@ -1,8 +1,20 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { updateMutation } from '../util/client';
-import { getSessionByToken, getUserById } from '../util/database';
+import Header from '../components/Header';
+import {
+  getActivities,
+  getActivitiesByUserId,
+  getSessionByToken,
+  getUserById,
+} from '../util/database';
+import {
+  addActivity,
+  deleteUserActivities,
+  updateMutation,
+  updateUserActivities,
+} from './api/client';
 
 const formStyles = css`
   text-align: justify;
@@ -62,17 +74,49 @@ const checkboxStyles = css`
 export default function Registration(props) {
   const [name, setName] = useState(props.user.name);
   const [bio, setBio] = useState(props.user.bio);
-  const [email, setEmail] = useState(props.user.email);
+  const [activityInputError, setActivityInputError] = useState('');
+  const [activities, setActivities] = useState(props.chosenActivities);
+  const [checked, setChecked] = useState(
+    props.dbActivities.map((a) => {
+      return { id: a.id, checked: activities.some((b) => b.id === a.id) };
+    }),
+  );
+  const [deleteActivities] = useMutation(deleteUserActivities);
   const [updateUser] = useMutation(updateMutation);
+  const [updateActivities] = useMutation(addActivity);
+  const router = useRouter();
 
   const id = props.user.id;
 
   async function submitUserUpdate(event) {
     event.preventDefault();
+    setActivityInputError('');
+    if (activities.length < 5) {
+      setActivityInputError('Please choose at least 5 activities');
+      return;
+    }
     try {
+      // delete the users activities
+      await deleteActivities({ variables: { userId: id } });
+      // and save the new activities
+      for (const activity of activities) {
+        await updateActivities({
+          variables: {
+            userId: id,
+            activityId: activity.id,
+          },
+        });
+      }
+      // update name, bio
       const user = await updateUser({
-        variables: { id: id, name: name, bio: bio, email: email },
+        variables: {
+          id: id,
+          name: name,
+          bio: bio,
+        },
       });
+      // redirect to their users page
+      router.push(`/users/${id}`).catch((err) => console.log(err));
     } catch (error) {
       console.log(error);
     }
@@ -80,7 +124,9 @@ export default function Registration(props) {
 
   return (
     <>
+      <Header user={props.user} />
       <h1 className="h1Font">Your Profile</h1>
+      {activityInputError && <h2>{activityInputError}</h2>}
       <form css={formStyles} className="flexColumn" onSubmit={submitUserUpdate}>
         <div>
           <label>
@@ -88,13 +134,6 @@ export default function Registration(props) {
             <input
               value={name}
               onChange={(event) => setName(event.currentTarget.value)}
-            />
-          </label>
-          <label>
-            <h2>Email</h2>
-            <input
-              value={email}
-              onChange={(event) => setEmail(event.currentTarget.value)}
             />
           </label>
           <h2>Interests</h2>
@@ -111,67 +150,38 @@ export default function Registration(props) {
           <div css={checkboxStyles}>
             <h3>Your Categories</h3>
             <p>Please choose at least 5</p>
-            <div>
-              <input type="checkbox" id="hiking" />
-              <label htmlFor="hiking">Hiking</label>
-            </div>
-            <div>
-              <input type="checkbox" id="gym" />
-              <label htmlFor="gym">Gym</label>
-            </div>
+            {props.dbActivities.map((a) => {
+              return (
+                <div key={`register-activity-${a.id}`}>
+                  <input
+                    type="checkbox"
+                    id={a.title}
+                    checked={checked.find((c) => a.id === c.id).checked}
+                    onChange={(event) => {
+                      setChecked(
+                        checked.map((c) => {
+                          if (c.id === a.id) {
+                            return {
+                              id: c.id,
+                              checked: event.currentTarget.checked,
+                            };
+                          }
+                          return c;
+                        }),
+                      );
+                      const currentActivities = [...activities];
 
-            <div>
-              <input type="checkbox" id="team" />
-              <label htmlFor="team">Team Sports</label>
-            </div>
-            <div>
-              <input type="checkbox" id="outdoor" />
-              <label htmlFor="outdoor">Outdoor activities</label>
-            </div>
-            <div>
-              <input type="checkbox" id="dancing" />
-              <label htmlFor="dancing">Dancing</label>
-            </div>
-            <div>
-              <input type="checkbox" id="cinema" />
-              <label htmlFor="cinema">Cinema</label>
-            </div>
-            <div>
-              <input type="checkbox" id="concerts" />
-              <label htmlFor="concerts">Concerts</label>
-            </div>
-            <div>
-              <input type="checkbox" id="climbing" />
-              <label htmlFor="climbing">Climbing</label>
-            </div>
-            <div>
-              <input type="checkbox" id="theater" />
-              <label htmlFor="theater">Theater</label>
-            </div>
-            <div>
-              <input type="checkbox" id="museums" />
-              <label htmlFor="museums">Museums</label>
-            </div>
-            <div>
-              <input type="checkbox" id="pubs" />
-              <label htmlFor="pubs">Pubs & Bars</label>
-            </div>
-            <div>
-              <input type="checkbox" id="cafes" />
-              <label htmlFor="cafes">Restaurants & Cafés</label>
-            </div>
-            <div>
-              <input type="checkbox" id="arts" />
-              <label htmlFor="arts">Arts & Crafts</label>
-            </div>
-            <div>
-              <input type="checkbox" id="running" />
-              <label htmlFor="running">Running</label>
-            </div>
-            <div>
-              <input type="checkbox" id="lectures" />
-              <label htmlFor="lectures">Lectures & Discussions</label>
-            </div>
+                      setActivities(
+                        event.currentTarget.checked
+                          ? [...currentActivities, { id: a.id, title: a.title }]
+                          : currentActivities.filter((ca) => ca.id !== a.id),
+                      );
+                    }}
+                  />
+                  <label htmlFor={a.title}>{a.title}</label>
+                </div>
+              );
+            })}
           </div>
         </div>
         <button className="buttonStyles">Save</button>
@@ -181,7 +191,7 @@ export default function Registration(props) {
 }
 
 export async function getServerSideProps(context) {
-  // check if there is already a valid token in the cookie
+  // check if there is already a token in the cookie
   const token = context.req.cookies.sessionToken;
 
   // if there is, pass on the user
@@ -189,9 +199,15 @@ export async function getServerSideProps(context) {
     const session = await getSessionByToken(token);
     if (session) {
       const user = await getUserById(session.userId);
+      // get all activities
+      const dbActivities = await getActivities();
+      // get the list of activities the user chose
+      const chosenActivities = await getActivitiesByUserId(user.id);
       return {
         props: {
           user,
+          dbActivities,
+          chosenActivities,
         },
       };
     }
@@ -200,7 +216,7 @@ export async function getServerSideProps(context) {
   // if they aren't logged in, redirect
   return {
     redirect: {
-      destination: '/',
+      destination: '/login',
       permanent: false,
     },
   };
