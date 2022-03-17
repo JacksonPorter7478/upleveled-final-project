@@ -1,9 +1,11 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { createMutation } from '../util/client';
-import { getSessionByToken } from '../util/database';
+import { createCsrfToken } from '../util/auth';
+import { getActivities, getSessionByToken } from '../util/database';
+import { addActivity, createMutation } from './api/client';
 
 const formStyles = css`
   text-align: justify;
@@ -60,20 +62,50 @@ const checkboxStyles = css`
   }
 `;
 
-export default function Registration() {
+export default function Registration(props) {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
+  const [activities, setActivities] = useState([]);
+  const [checked, setChecked] = useState(
+    props.activities.map((a) => {
+      if (activities.includes(a.id)) {
+        return { id: a.id, checked: true };
+      }
+      return { id: a.id, checked: false };
+    }),
+  );
   const router = useRouter();
-  const [createNewUser, { data, loading, error }] = useMutation(createMutation);
+  const [createNewUser, { loading, error }] = useMutation(createMutation);
+  const [addToUser] = useMutation(addActivity);
+  const [activityInputError, setActivityInputError] = useState('');
 
   async function submitRegistration(event) {
     event.preventDefault();
+    setActivityInputError('');
+    if (activities.length < 5) {
+      setActivityInputError('Please choose at least 5 activities');
+      return;
+    }
     try {
       const user = await createNewUser({
-        variables: { name: name, bio: bio, email: email, pw: pw },
+        variables: {
+          name: name,
+          bio: bio,
+          email: email,
+          pw: pw,
+          csrfToken: props.csrfToken,
+        },
       });
+      for (const activity of activities) {
+        await addToUser({
+          variables: {
+            userId: user.data.createUser.id,
+            activityId: activity,
+          },
+        });
+      }
       router
         .push(`/users/${user.data.createUser.id}`)
         .catch((err) => console.log('router: ' + err));
@@ -86,8 +118,14 @@ export default function Registration() {
 
   return (
     <>
+      <p>
+        <Link href="/login">
+          <a>Sign in instead</a>
+        </Link>
+      </p>
       <h1 className="h1Font">Sign up</h1>
       {error && <h2>{error.message}</h2>}
+      {activityInputError && <h2>{activityInputError}</h2>}
       <form
         css={formStyles}
         className="flexColumn"
@@ -117,67 +155,37 @@ export default function Registration() {
           <div css={checkboxStyles}>
             <h3>Your Categories</h3>
             <p>Please choose at least 5</p>
-            <div>
-              <input type="checkbox" id="hiking" />
-              <label htmlFor="hiking">Hiking</label>
-            </div>
-            <div>
-              <input type="checkbox" id="gym" />
-              <label htmlFor="gym">Gym</label>
-            </div>
-
-            <div>
-              <input type="checkbox" id="team" />
-              <label htmlFor="team">Team Sports</label>
-            </div>
-            <div>
-              <input type="checkbox" id="outdoor" />
-              <label htmlFor="outdoor">Outdoor activities</label>
-            </div>
-            <div>
-              <input type="checkbox" id="dancing" />
-              <label htmlFor="dancing">Dancing</label>
-            </div>
-            <div>
-              <input type="checkbox" id="cinema" />
-              <label htmlFor="cinema">Cinema</label>
-            </div>
-            <div>
-              <input type="checkbox" id="concerts" />
-              <label htmlFor="concerts">Concerts</label>
-            </div>
-            <div>
-              <input type="checkbox" id="climbing" />
-              <label htmlFor="climbing">Climbing</label>
-            </div>
-            <div>
-              <input type="checkbox" id="theater" />
-              <label htmlFor="theater">Theater</label>
-            </div>
-            <div>
-              <input type="checkbox" id="museums" />
-              <label htmlFor="museums">Museums</label>
-            </div>
-            <div>
-              <input type="checkbox" id="pubs" />
-              <label htmlFor="pubs">Pubs & Bars</label>
-            </div>
-            <div>
-              <input type="checkbox" id="cafes" />
-              <label htmlFor="cafes">Restaurants & Cafés</label>
-            </div>
-            <div>
-              <input type="checkbox" id="arts" />
-              <label htmlFor="arts">Arts & Crafts</label>
-            </div>
-            <div>
-              <input type="checkbox" id="running" />
-              <label htmlFor="running">Running</label>
-            </div>
-            <div>
-              <input type="checkbox" id="lectures" />
-              <label htmlFor="lectures">Lectures & Discussions</label>
-            </div>
+            {props.activities.map((a) => {
+              return (
+                <div key={`register-activity-${a.id}`}>
+                  <input
+                    type="checkbox"
+                    id={a.title}
+                    checked={checked.find((c) => a.id === c.id).checked}
+                    onChange={(event) => {
+                      setChecked(
+                        checked.map((c) => {
+                          if (c.id === a.id) {
+                            return {
+                              id: c.id,
+                              checked: event.currentTarget.checked,
+                            };
+                          }
+                          return c;
+                        }),
+                      );
+                      const currentActivities = [...activities];
+                      setActivities(
+                        event.currentTarget.checked
+                          ? [...currentActivities, a.id]
+                          : currentActivities.filter((ca) => ca !== a.id),
+                      );
+                    }}
+                  />
+                  <label htmlFor={a.title}>{a.title}</label>
+                </div>
+              );
+            })}
           </div>
           <h2>Login info</h2>
           <label>
@@ -209,6 +217,20 @@ export default function Registration() {
 }
 
 export async function getServerSideProps(context) {
+  // Redirect from HTTP to HTTPS on Heroku
+  if (
+    context.req.headers.host &&
+    context.req.headers['x-forwarded-proto'] &&
+    context.req.headers['x-forwarded-proto'] !== 'https'
+  ) {
+    return {
+      redirect: {
+        destination: `https://${context.req.headers.host}/register`,
+        permanent: true,
+      },
+    };
+  }
+
   // check if there is already a valid token in the cookie
   const token = context.req.cookies.sessionToken;
 
@@ -224,8 +246,10 @@ export async function getServerSideProps(context) {
       };
     }
   }
-  // otherwise render this login page
+  // otherwise fetch the activities
+  const activities = await getActivities();
+
   return {
-    props: {},
+    props: { activities, csrfToken: createCsrfToken() },
   };
 }
