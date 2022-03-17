@@ -240,7 +240,7 @@ export async function updateUser(id, name, bio) {
 
 export async function deleteUserFromDb(id) {
   const name = await getUserById(id);
-  const user = await sql`
+  await sql`
   DELETE FROM
     users
   WHERE

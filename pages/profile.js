@@ -120,7 +120,7 @@ export default function Registration(props) {
         });
       }
       // update name, bio
-      const user = await updateUser({
+      await updateUser({
         variables: {
           id: id,
           name: name,
@@ -136,7 +136,7 @@ export default function Registration(props) {
 
   async function deleteUserAccount() {
     try {
-      const user = await deleteAccount({ variables: { id: id } });
+      await deleteAccount({ variables: { id: id } });
       router.push('/goodbye').catch((err) => console.log(err));
     } catch (err) {
       console.log(err);
