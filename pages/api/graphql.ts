@@ -63,7 +63,6 @@ const resolvers = {
       args: Args,
       context: { res: ServerResponse },
     ) {
-      console.log('err');
       const [serializedCookie, user] = await signIn(
         args.email,
         args.pw,

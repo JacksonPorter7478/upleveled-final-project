@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "heroku-postbuild": "yarn migrate up && yarn build",
     "start": "next start",
     "lint": "next lint",
     "migrate": "dotenv ley"
@@ -27,6 +28,7 @@
     "ley": "^0.7.1",
     "micro": "^9.3.4",
     "next": "12.1.0",
+    "pg-connection-string": "^2.5.0",
     "postgres": "^1.0.2",
     "react": "17.0.2",
     "react-dom": "17.0.2",
@@ -67,5 +69,8 @@
     "eslint-plugin-import": "2.25.4",
     "eslint-plugin-jest": "26.1.1",
     "eslint-plugin-react": "7.29.2"
-  }
+  },
+  "cacheDirectories": [
+    ".next/cache"
+  ]
 }

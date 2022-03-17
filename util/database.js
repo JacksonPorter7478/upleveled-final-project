@@ -1,7 +1,9 @@
 import camelcaseKeys from 'camelcase-keys';
 import { config } from 'dotenv-safe';
 import postgres from 'postgres';
+import setPostgresDefaultsOnHeroku from './setPostgresDefaultsOnHeroku';
 
+setPostgresDefaultsOnHeroku();
 config();
 
 // Type for the connection function below
@@ -14,7 +16,6 @@ function connectOnceToDatabase() {
   let sql;
 
   if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
-    sql = postgres();
     // Heroku needs SSL connections but
     // has an "unauthorized" certificate
     // https://devcenter.heroku.com/changelog-items/852
