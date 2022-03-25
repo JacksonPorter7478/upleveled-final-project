@@ -1,36 +1,91 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import duck from '../public/duck.jpg';
+import kitten from '../public/kitten.jpg';
+import puppy from '../public/puppy.jpg';
 import { createCsrfToken } from '../util/auth';
 import { getActivities, getSessionByToken } from '../util/database';
 import { addActivity, createMutation } from './api/client';
 
+const md5 = require('md5');
+
+const header = css`
+  display: flex;
+  width: 100vw;
+  margin-top: -6vh;
+  margin-bottom: 5vh;
+  padding: 20px;
+  justify-content: space-around;
+  border-bottom: 3px solid;
+  border-image-slice: 1;
+  border-width: 4px;
+  border-image-source: linear-gradient(
+    to right,
+    #05396b,
+    #389583,
+    #8de4af,
+    #bff0d1
+  );
+  a:nth-child(2) {
+    font-size: 26px;
+    text-decoration: none;
+  }
+`;
+
 const formStyles = css`
-  text-align: justify;
   align-items: center;
   h2,
   h3 {
     margin: 16px 0 0 0;
   }
   p {
-    margin: 0 0 20px 0;
+    margin: 0 0 16px 0;
   }
   textarea {
     display: block;
     width: 80%;
     margin: 4vw;
-    border-radius: 4px;
-    border: 2px solid powderblue;
   }
   input {
-    border-radius: 4px;
-    border: 2px solid powderblue;
     margin-bottom: 15px;
   }
   button {
     margin-top: 20px;
+  }
+  .avatar {
+    display: flex;
+    flex-flow: wrap;
+    div {
+      display: flex;
+      flex-flow: wrap;
+    }
+    label {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      outline: 6px solid #05396b;
+      overflow: hidden;
+      margin: 15px;
+      Image,
+      img {
+        height: 100%;
+      }
+    }
+    input {
+      opacity: 0;
+      transform: translate(35px, 20px);
+      margin: 0;
+      :checked + label {
+        outline: 6px solid #8de4af;
+      }
+      :focus + label {
+        outline: 6px solid #bff0d1;
+      }
+    }
   }
 `;
 
@@ -43,10 +98,10 @@ const checkboxStyles = css`
     display: inline-block;
     padding: 2px 8px;
     margin: 6px;
-    border: 2px solid powderblue;
+    border: 2px solid #8de4af;
     border-radius: 4px;
     :hover {
-      border: 2px solid cadetblue;
+      border: 2px solid #15bab3;
     }
   }
   input {
@@ -54,16 +109,17 @@ const checkboxStyles = css`
     transform: translateX(35px);
     margin: 0;
     :checked + label {
-      background-color: powderblue;
+      background-color: #bff0d1;
     }
     :focus + label {
-      border: 2px solid cadetblue;
+      border: 2px solid #05396b;
     }
   }
 `;
 
 export default function Registration(props) {
   const [name, setName] = useState('');
+  const [avatar, setAvatar] = useState('');
   const [bio, setBio] = useState('');
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
@@ -81,6 +137,10 @@ export default function Registration(props) {
   const [addToUser] = useMutation(addActivity);
   const [activityInputError, setActivityInputError] = useState('');
 
+  const gravatar = `https://www.gravatar.com/avatar/${md5(
+    email.toLowerCase(),
+  )}`;
+
   async function submitRegistration(event) {
     event.preventDefault();
     setActivityInputError('');
@@ -92,6 +152,7 @@ export default function Registration(props) {
       const user = await createNewUser({
         variables: {
           name: name,
+          avatar: avatar,
           bio: bio,
           email: email,
           pw: pw,
@@ -114,15 +175,32 @@ export default function Registration(props) {
     }
   }
 
-  if (loading) return 'Creating your profile...';
+  if (loading) {
+    return (
+      <div>
+        <Image
+          src="/paperIcon.png"
+          alt="Loading your profile..."
+          width="90vw"
+          height="90vw"
+        />
+        <h1 className="h1Font">Buddies</h1>
+      </div>
+    );
+  }
 
   return (
     <>
-      <p>
-        <Link href="/login">
-          <a>Sign in instead</a>
+      <header css={header}>
+        <Link href="/">
+          <a>
+            <Image src="/homeIcon.png" width="30px" height="30px" />
+          </a>
         </Link>
-      </p>
+        <Link href="/login">
+          <a>Sign in</a>
+        </Link>
+      </header>
       <h1 className="h1Font">Sign up</h1>
       {error && <h2>{error.message}</h2>}
       {activityInputError && <h2>{activityInputError}</h2>}
@@ -140,6 +218,74 @@ export default function Registration(props) {
               onChange={(event) => setName(event.currentTarget.value)}
             />
           </label>
+          <h2 id="radio">Profile picture</h2>
+          <p>
+            Please choose an avatar <br />
+            (Sign up with your <a href="https://en.gravatar.com/">
+              Gravatar
+            </a>{' '}
+            Email if you prefer using your own picture)
+          </p>
+          <div className="avatar">
+            <div>
+              <input
+                type="radio"
+                name="avatar"
+                id="duck"
+                onChange={() => {
+                  setAvatar('/duck.jpg');
+                }}
+              />
+              <label htmlFor="duck" aria-labelledby="radio">
+                <Image src={duck} alt="a baby duck mid-walk" />
+              </label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                name="avatar"
+                id="kitten"
+                onChange={() => {
+                  setAvatar('/kitten.jpg');
+                }}
+              />
+              <label htmlFor="kitten" aria-labelledby="radio">
+                <Image
+                  src={kitten}
+                  alt="super cute kitten looking up at the viewer"
+                />
+              </label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                name="avatar"
+                id="puppy"
+                onChange={() => {
+                  setAvatar('/puppy.jpg');
+                }}
+              />
+              <label htmlFor="puppy" aria-labelledby="radio">
+                <Image
+                  src={puppy}
+                  alt="portrait of a puppy with a somewhat mischieveous twinkle in its eye"
+                />
+              </label>
+            </div>
+            <div className="gravatar">
+              <input
+                type="radio"
+                name="avatar"
+                id="gravatar"
+                onChange={() => {
+                  setAvatar(gravatar);
+                }}
+              />
+              <label htmlFor="gravatar" aria-labelledby="radio">
+                <img src={gravatar} alt="your gravatar profile" />
+              </label>
+            </div>
+          </div>
           <h2>Interests</h2>
           <label>
             Let other people know what kind of activities you're interested in:
