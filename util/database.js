@@ -80,7 +80,8 @@ export async function createSession(token, userId) {
     (${token}, ${userId})
   RETURNING
     id,
-    token
+    token,
+    user_id
   `;
   await deleteExpiredSessions();
   return camelcaseKeys(session[0]);
@@ -148,6 +149,7 @@ export async function getUsers() {
     SELECT
       id,
       name,
+      avatar,
       bio,
       email
     FROM
@@ -160,6 +162,7 @@ export async function getUserById(id) {
     SELECT
       id,
       name,
+      avatar,
       bio,
       email
     FROM
@@ -201,6 +204,7 @@ export async function getFullUserByToken(token) {
   SELECT
     users.id,
     users.name,
+    users.avatar,
     users.bio
   FROM
     sessions,
@@ -215,26 +219,26 @@ export async function getFullUserByToken(token) {
 
 // USER mutations
 
-export async function createUser(name, bio, email, pwhash) {
+export async function createUser(name, avatar, bio, email, pwhash) {
   const user = await sql`
     INSERT INTO users
-      ( name, bio, email, pwhash )
+      ( name, avatar, bio, email, pwhash )
     VALUES
-      ( ${name}, ${bio}, ${email}, ${pwhash} )
+      ( ${name}, ${avatar}, ${bio}, ${email}, ${pwhash} )
     RETURNING
-      id, name, bio, email`;
+      id, name, avatar, bio, email`;
   return user[0];
 }
 
-export async function updateUser(id, name, bio) {
+export async function updateUser(id, name, avatar, bio) {
   const updatedUserValue = await sql`
     UPDATE users
     SET
-      name = ${name}, bio = ${bio}
+      name = ${name}, avatar = ${avatar}, bio = ${bio}
     WHERE
       id = ${id}
     RETURNING
-      id, name, bio, email`;
+      id, name, avatar, bio, email`;
   return updatedUserValue[0];
 }
 
