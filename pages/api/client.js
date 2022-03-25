@@ -19,6 +19,17 @@ export const usersQuery = gql`
     }
   }
 `;
+export const userByContextQuery = gql`
+  query {
+    user {
+      id
+      name
+      bio
+      email
+      avatar
+    }
+  }
+`;
 
 export const loggedIn = gql`
   mutation ($email: String!, $pw: String!, $csrfToken: String!) {
@@ -31,6 +42,7 @@ export const loggedIn = gql`
 export const createMutation = gql`
   mutation (
     $name: String!
+    $avatar: String!
     $bio: String!
     $email: String!
     $pw: String!
@@ -38,6 +50,7 @@ export const createMutation = gql`
   ) {
     createUser(
       name: $name
+      avatar: $avatar
       bio: $bio
       email: $email
       pw: $pw
@@ -45,6 +58,7 @@ export const createMutation = gql`
     ) {
       id
       name
+      avatar
       bio
       email
     }
@@ -52,10 +66,11 @@ export const createMutation = gql`
 `;
 
 export const updateMutation = gql`
-  mutation ($id: ID!, $name: String!, $bio: String!) {
-    updateUser(id: $id, name: $name, bio: $bio) {
+  mutation ($id: ID!, $name: String!, $avatar: String!, $bio: String!) {
+    updateUser(id: $id, name: $name, avatar: $avatar, bio: $bio) {
       id
       name
+      avatar
       bio
       email
     }
@@ -83,6 +98,59 @@ export const deleteMutation = gql`
   mutation ($id: ID!) {
     deleteUser(id: $id) {
       name
+    }
+  }
+`;
+
+export const createChatMutation = gql`
+  mutation ($name: String!) {
+    createNewChat(name: $name) {
+      id
+      name
+    }
+  }
+`;
+
+export const chatUserMutation = gql`
+  mutation ($userId: ID!, $chatId: ID!) {
+    addChatUser(userId: $userId, chatId: $chatId) {
+      userId
+      chatId
+    }
+  }
+`;
+
+export const chatUserDeleteMutation = gql`
+  mutation ($userId: ID!, $chatId: ID!) {
+    deleteChatUser(userId: $userId, chatId: $chatId) {
+      userId
+      chatId
+    }
+  }
+`;
+
+export const createMsgMutation = gql`
+  mutation ($chatId: ID!, $content: String!, $name: String!) {
+    storeMessage(chatId: $chatId, content: $content, name: $name) {
+      id
+      userId
+      chatId
+      content
+      name
+      timestamp
+    }
+  }
+`;
+
+export const messageHistoryQuery = gql`
+  query ($chatId: ID!) {
+    messageHistory(chatId: $chatId) {
+      id
+      userId
+      chatId
+      content
+      name
+      timestamp
     }
   }
 `;
