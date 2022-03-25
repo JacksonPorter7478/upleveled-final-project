@@ -1,8 +1,12 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import Header from '../components/Header';
+import duck from '../public/duck.jpg';
+import kitten from '../public/kitten.jpg';
+import puppy from '../public/puppy.jpg';
 import {
   getActivities,
   getActivitiesByUserId,
@@ -30,16 +34,43 @@ const formStyles = css`
     display: block;
     width: 80%;
     margin: 4vw;
-    border-radius: 4px;
-    border: 2px solid powderblue;
   }
   input {
-    border-radius: 4px;
-    border: 2px solid powderblue;
     margin-bottom: 15px;
   }
   button {
     margin-top: 20px;
+  }
+
+  .avatar {
+    display: flex;
+    flex-flow: wrap;
+    div {
+      display: flex;
+      flex-flow: wrap;
+    }
+    label {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      outline: 6px solid #05396b;
+      overflow: hidden;
+      margin: 15px;
+      Image {
+        height: 100%;
+      }
+    }
+    input {
+      opacity: 0;
+      transform: translate(35px, 20px);
+      margin: 0;
+      :checked + label {
+        outline: 6px solid #8de4af;
+      }
+      :focus + label {
+        outline: 6px solid #bff0d1;
+      }
+    }
   }
 `;
 
@@ -52,10 +83,10 @@ const checkboxStyles = css`
     display: inline-block;
     padding: 2px 8px;
     margin: 6px;
-    border: 2px solid powderblue;
+    border: 2px solid #8de4af;
     border-radius: 4px;
     :hover {
-      border: 2px solid cadetblue;
+      border: 2px solid #15bab3;
     }
   }
   input {
@@ -63,10 +94,10 @@ const checkboxStyles = css`
     transform: translateX(35px);
     margin: 0;
     :checked + label {
-      background-color: powderblue;
+      background-color: #bff0d1;
     }
     :focus + label {
-      border: 2px solid cadetblue;
+      border: 2px solid #05396b;
     }
   }
 `;
@@ -83,8 +114,9 @@ const deleteStyles = css`
 `;
 
 export default function Registration(props) {
-  const [name, setName] = useState(props.user.name);
-  const [bio, setBio] = useState(props.user.bio);
+  const [name, setName] = useState(props.currentUser.name);
+  const [avatar, setAvatar] = useState(props.currentUser.avatar);
+  const [bio, setBio] = useState(props.currentUser.bio);
   const [activityInputError, setActivityInputError] = useState('');
   const [activities, setActivities] = useState(props.chosenActivities);
   const [checked, setChecked] = useState(
@@ -97,8 +129,11 @@ export default function Registration(props) {
   const [updateUser] = useMutation(updateMutation);
   const [updateActivities] = useMutation(addActivity);
   const router = useRouter();
-
-  const id = props.user.id;
+  const md5 = require('md5');
+  const id = props.currentUser.id;
+  const gravatar = `https://www.gravatar.com/avatar/${md5(
+    props.currentUser.email.toLowerCase(),
+  )}`;
 
   async function submitUserUpdate(event) {
     event.preventDefault();
@@ -124,6 +159,7 @@ export default function Registration(props) {
         variables: {
           id: id,
           name: name,
+          avatar: avatar,
           bio: bio,
         },
       });
@@ -145,7 +181,7 @@ export default function Registration(props) {
 
   return (
     <>
-      <Header user={props.user} />
+      <Header user={props.currentUser} />
       <h1 className="h1Font">Your Profile</h1>
       {activityInputError && <h2>{activityInputError}</h2>}
       <form css={formStyles} className="flexColumn" onSubmit={submitUserUpdate}>
@@ -157,6 +193,70 @@ export default function Registration(props) {
               onChange={(event) => setName(event.currentTarget.value)}
             />
           </label>
+
+          <h2 id="radio">Profile picture</h2>
+          <p>Please choose an avatar</p>
+          <div className="avatar">
+            <div>
+              <input
+                type="radio"
+                name="avatar"
+                id="duck"
+                onChange={() => {
+                  setAvatar('/duck.jpg');
+                }}
+              />
+              <label htmlFor="duck" aria-labelledby="radio">
+                <Image src={duck} alt="a baby duck mid-walk" />
+              </label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                name="avatar"
+                id="kitten"
+                onChange={() => {
+                  setAvatar('/kitten.jpg');
+                }}
+              />
+              <label htmlFor="kitten" aria-labelledby="radio">
+                <Image
+                  src={kitten}
+                  alt="super cute kitten looking up at the viewer"
+                />
+              </label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                name="avatar"
+                id="gravatar"
+                onChange={() => {
+                  setAvatar(gravatar);
+                }}
+              />
+              <label htmlFor="gravatar" aria-labelledby="radio">
+                <img src={gravatar} alt="your gravatar profile" />
+              </label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                name="avatar"
+                id="puppy"
+                onChange={() => {
+                  setAvatar('/puppy.jpg');
+                }}
+              />
+              <label htmlFor="puppy" aria-labelledby="radio">
+                <Image
+                  src={puppy}
+                  alt="portrait of a puppy with a somewhat mischieveous twinkle in its eye"
+                />
+              </label>
+            </div>
+          </div>
+
           <h2>Interests</h2>
           <label>
             Let other people know what kind of activities you're interested in:
@@ -222,14 +322,14 @@ export async function getServerSideProps(context) {
   if (token) {
     const session = await getSessionByToken(token);
     if (session) {
-      const user = await getUserById(session.userId);
+      const currentUser = await getUserById(session.userId);
       // get all activities
       const dbActivities = await getActivities();
       // get the list of activities the user chose
-      const chosenActivities = await getActivitiesByUserId(user.id);
+      const chosenActivities = await getActivitiesByUserId(currentUser.id);
       return {
         props: {
-          user,
+          currentUser,
           dbActivities,
           chosenActivities,
         },
