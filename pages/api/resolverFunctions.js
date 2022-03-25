@@ -11,10 +11,20 @@ import {
 } from '../../util/database';
 
 // create a new user
-export async function createUserWithHash(name, bio, email, pw, csrfToken) {
+export async function createUserWithHash(
+  name,
+  avatar,
+  bio,
+  email,
+  pw,
+  csrfToken,
+) {
   // make that inputs are non-empty strings
   if (typeof name !== 'string' || !name) {
     throw new UserInputError('Please provide a name');
+  }
+  if (typeof avatar !== 'string' || !avatar) {
+    throw new UserInputError('Please choose a profile avatar');
   }
   if (typeof bio !== 'string' || !bio) {
     throw new UserInputError('Please provide some information about yourself');
@@ -44,12 +54,12 @@ export async function createUserWithHash(name, bio, email, pw, csrfToken) {
   try {
     // hash the pw and create a user in the database
     const pwhash = await bcrypt.hash(pw, 12);
-    const user = await createUser(name, bio, email, pwhash);
+    const user = await createUser(name, avatar, bio, email, pwhash);
 
     // 1. create a unique token
     const token = crypto.randomBytes(64).toString('base64');
     // 2. create a session
-    const session = await createSession(token, user.id);
+    await createSession(token, user.id);
     // 3. serialize the cookie
     const serializedCookie = await createSerializedSessionTokenCookie(token);
 
