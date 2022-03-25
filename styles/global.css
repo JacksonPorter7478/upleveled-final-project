@@ -7,6 +7,11 @@ body {
 * {
   box-sizing: border-box;
   font-family: 'Baloo Tamma 2', sans-serif;
+  color: #545659;
+}
+
+a {
+  color: #545659;
 }
 
 .h1Font {
@@ -16,6 +21,7 @@ body {
 
 .pageStyles {
   margin: 6vw;
+  margin-top: 8vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -31,11 +37,20 @@ body {
   font-size: 1.3rem;
   font-weight: bold;
   letter-spacing: 4px;
-  border: 2px solid powderblue;
+  border: 2px solid #545659;
   border-radius: 4px;
   background-color: transparent;
 }
 .buttonStyles:hover {
-  border: 2px solid cadetblue;
-  background-color: powderblue;
+  background-color: #bff0d178;
+}
+
+input,
+textarea {
+  border-radius: 4px;
+  border: 2px solid #ebebeb;
+}
+input:focus,
+textarea:focus {
+  border: 2px solid #05396b;
 }
