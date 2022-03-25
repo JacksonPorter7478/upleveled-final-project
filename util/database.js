@@ -255,3 +255,116 @@ export async function deleteUserFromDb(id) {
   await deleteUserActivities(id);
   return name.name;
 }
+
+// CHAT
+
+export async function createChat(name) {
+  const chat = await sql`
+    INSERT INTO chats
+      ( name )
+    VALUES
+      ( ${name})
+    RETURNING
+      id, name`;
+  return chat[0];
+}
+
+export async function addUsersToChat(userId, chatId) {
+  const chatUsers = await sql`
+    INSERT INTO chat_users
+      ( user_id, chat_id )
+    VALUES
+      ( ${userId}, ${chatId} )
+    RETURNING
+      user_id
+      chat_id
+  `;
+  return camelcaseKeys(chatUsers[0]);
+}
+
+export async function deleteUserFromChat(userId, chatId) {
+  const user = await sql`
+    DELETE FROM
+     chat_users
+    WHERE
+      chat_id = ${chatId} AND
+      user_id = ${userId}
+  `;
+  return camelcaseKeys({ userId, chatId });
+}
+
+export async function getChatsByUserId(userId) {
+  const chats = await sql`
+  SELECT
+    chats.id,
+    chats.name
+  FROM
+    chat_users,
+    chats
+  WHERE
+    user_id = ${userId} AND
+    chats.id = chat_id
+
+  `;
+  const userChats = chats.filter((c) => c.id);
+  return camelcaseKeys(userChats);
+}
+
+export async function getChatById(id) {
+  const chat = await sql`
+    SELECT
+      *
+    FROM
+      chats
+    WHERE
+      id = ${id}
+    `;
+  return chat[0];
+}
+
+export async function getChatMembersByChatId(chatId) {
+  const members = await sql`
+  SELECT
+    users.id,
+    users.name,
+    users.avatar
+  FROM
+    chat_users,
+    users
+  WHERE
+    chat_id = ${chatId} AND
+    users.id = user_id
+
+  `;
+  const chatMembers = members.filter((a) => a.id);
+  return camelcaseKeys(chatMembers);
+}
+
+// MESSAGES
+
+export async function createMessage(userId, chatId, content, name) {
+  const message = await sql`
+    INSERT INTO messages
+      ( user_id, chat_id, content, name )
+    VALUES
+      ( ${userId}, ${chatId}, ${content}, ${name})
+    RETURNING
+      id, user_id, chat_id, content, name, timestamp
+      `;
+  return camelcaseKeys(message[0]);
+}
+
+export async function getMessagesByChatId(chatId) {
+  const message = await sql`
+    SELECT
+      id, user_id, chat_id, TO_CHAR(timestamp, 'HH24:MI:SS-DDMonYYYY') as timestamp, content, name
+    FROM
+      messages
+    WHERE chat_id= ${chatId}
+    `;
+  const messageHistory = message.filter((m) => m.id);
+  // .map((message) => {
+  //   return { ...message, timestamp: message.timestamp.toString() };
+  // });
+  return camelcaseKeys(messageHistory);
+}
