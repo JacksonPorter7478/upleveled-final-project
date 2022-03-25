@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -7,14 +8,34 @@ import { createCsrfToken } from '../util/auth';
 import { getSessionByToken } from '../util/database';
 import { loggedIn } from './api/client';
 
+const header = css`
+  display: flex;
+  width: 100vw;
+  margin-top: -6vh;
+  margin-bottom: 5vh;
+  padding: 20px;
+  justify-content: space-around;
+  border-bottom: 3px solid;
+  border-image-slice: 1;
+  border-width: 4px;
+  border-image-source: linear-gradient(
+    to right,
+    #05396b,
+    #389583,
+    #8de4af,
+    #bff0d1
+  );
+  a:nth-child(2) {
+    font-size: 26px;
+    text-decoration: none;
+  }
+`;
+
 const formStyles = css`
   align-items: center;
-  input {
-    border-radius: 4px;
-    border: 2px solid powderblue;
-  }
+  width: 100%;
   button {
-    margin-top: 20px;
+    margin: 40px;
   }
 `;
 
@@ -40,10 +61,31 @@ export default function Login(props) {
     }
   }
 
-  if (loading) return 'Loading...';
-
+  if (loading) {
+    return (
+      <div>
+        <Image
+          src="/paperIcon.png"
+          alt="Loading your profile..."
+          width="90vw"
+          height="90vw"
+        />
+        <h1 className="h1Font">Buddies</h1>
+      </div>
+    );
+  }
   return (
     <>
+      <header css={header}>
+        <Link href="/">
+          <a>
+            <Image src="/homeIcon.png" width="30px" height="30px" />
+          </a>
+        </Link>
+        <Link href="/register">
+          <a>Sign up</a>
+        </Link>
+      </header>
       <h1 className="h1Font">Sign in</h1>
       {error && <h2>{error.message}</h2>}
       <form
@@ -76,9 +118,6 @@ export default function Login(props) {
           <br />
         </div>
         <button className="buttonStyles">Sign in</button>
-        <Link href="/register">
-          <a>Go to Signup</a>
-        </Link>
       </form>
     </>
   );
