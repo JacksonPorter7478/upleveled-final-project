@@ -25,7 +25,7 @@ const header = css`
     #8de4af,
     #bff0d1
   );
-  a:nth-child(2) {
+  a:nth-of-type(2) {
     font-size: 26px;
     text-decoration: none;
   }
@@ -42,22 +42,29 @@ const formStyles = css`
 export default function Login(props) {
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
+  const [errorInfo, setErrorInfo] = useState('');
   const router = useRouter();
   const [getLoggedInUser, { loading, error }] = useMutation(loggedIn);
 
   async function loginHandler(event) {
     event.preventDefault();
     try {
+      // try the login
       const userId = await getLoggedInUser({
         variables: { email: email, pw: pw, csrfToken: props.csrfToken },
-      }).catch((err) => console.log(err));
-
+      });
+      // if pw or email are wrong, there will be an error message
+      if (userId.data.logUserIn.error) {
+        setErrorInfo(userId.data.logUserIn.error);
+        return;
+      }
       if (typeof userId.data.logUserIn.id !== 'string') {
         return;
       }
+      // redirect to their logged in page
       await router.push(`/users/${userId.data.logUserIn.id}`);
     } catch (err) {
-      console.log('Error logging in: ' + err);
+      console.log('Error logging in');
     }
   }
 
@@ -74,6 +81,7 @@ export default function Login(props) {
       </div>
     );
   }
+
   return (
     <>
       <header css={header}>
@@ -87,7 +95,8 @@ export default function Login(props) {
         </Link>
       </header>
       <h1 className="h1Font">Sign in</h1>
-      {error && <h2>{error.message}</h2>}
+      {error && <h2>Sorry, there has been an error. Try again later!</h2>}
+      {errorInfo && <h2>{errorInfo}</h2>}
       <form
         css={formStyles}
         className="flexColumn"
