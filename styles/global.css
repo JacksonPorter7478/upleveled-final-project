@@ -17,6 +17,7 @@ a {
 .h1Font {
   font-family: 'Pacifico', sans-serif;
   letter-spacing: 3px;
+  text-align: center;
 }
 
 .pageStyles {
@@ -38,11 +39,16 @@ a {
   font-weight: bold;
   letter-spacing: 4px;
   border: 2px solid #545659;
-  border-radius: 4px;
+  /* border-radius: 4px; */
+  border-radius: 30px;
   background-color: transparent;
 }
 .buttonStyles:hover {
-  background-color: #bff0d178;
+  outline: 3px solid #389583;
+  border: 2px solid #389583;
+}
+.buttonStyles:focus {
+  border: 3px solid #389583;
 }
 
 input,
@@ -53,4 +59,16 @@ textarea {
 input:focus,
 textarea:focus {
   border: 2px solid #05396b;
+}
+
+@media screen and (min-width: 900px) {
+  .responsive {
+    width: 60%;
+    margin-top: 30px;
+  }
+}
+
+.responsive.flexColumn {
+  align-items: center;
+  justify-content: center;
 }
