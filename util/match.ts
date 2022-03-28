@@ -55,10 +55,10 @@ export default async function matchUsers(id: number) {
     },
   );
 
-  // list the users who have min 2 activities in common
+  // list the users who have min 3 activities in common
   const matches: number[] = matchingActivities.reduce(
     (previousValue: number[], currentValue: UsersActivityLists) => {
-      if (currentValue.activities.length > 1) {
+      if (currentValue.activities.length > 2) {
         return [...previousValue, currentValue.userId];
       }
       return previousValue;
