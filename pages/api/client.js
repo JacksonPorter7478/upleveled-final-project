@@ -35,6 +35,7 @@ export const loggedIn = gql`
   mutation ($email: String!, $pw: String!, $csrfToken: String!) {
     logUserIn(email: $email, pw: $pw, csrfToken: $csrfToken) {
       id
+      error
     }
   }
 `;
@@ -61,6 +62,7 @@ export const createMutation = gql`
       avatar
       bio
       email
+      error
     }
   }
 `;
@@ -107,6 +109,8 @@ export const createChatMutation = gql`
     createNewChat(name: $name) {
       id
       name
+      userId
+      error
     }
   }
 `;
@@ -151,6 +155,17 @@ export const messageHistoryQuery = gql`
       content
       name
       timestamp
+    }
+  }
+`;
+
+export const deleteChatMutation = gql`
+  mutation ($chatId: ID!) {
+    deleteChatAndMessages(chatId: $chatId) {
+      id
+      name
+      userId
+      error
     }
   }
 `;
