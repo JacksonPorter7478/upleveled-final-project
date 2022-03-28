@@ -226,7 +226,7 @@ export async function createUser(name, avatar, bio, email, pwhash) {
     VALUES
       ( ${name}, ${avatar}, ${bio}, ${email}, ${pwhash} )
     RETURNING
-      id, name, avatar, bio, email`;
+      id, name, avatar, bio`;
   return user[0];
 }
 
@@ -258,15 +258,27 @@ export async function deleteUserFromDb(id) {
 
 // CHAT
 
-export async function createChat(name) {
+export async function createChat(name, userId) {
   const chat = await sql`
     INSERT INTO chats
-      ( name )
+      ( name, user_id )
     VALUES
-      ( ${name})
+      ( ${name}, ${userId})
     RETURNING
-      id, name`;
-  return chat[0];
+      id, name, user_id`;
+  return camelcaseKeys(chat[0]);
+}
+
+export async function deleteChat(chatId) {
+  const chat = await sql`
+    DELETE FROM
+    chats
+  WHERE
+    id = ${chatId}
+  RETURNING
+    *
+  `;
+  return camelcaseKeys(chat[0]);
 }
 
 export async function addUsersToChat(userId, chatId) {
@@ -283,7 +295,7 @@ export async function addUsersToChat(userId, chatId) {
 }
 
 export async function deleteUserFromChat(userId, chatId) {
-  const user = await sql`
+  await sql`
     DELETE FROM
      chat_users
     WHERE
@@ -302,7 +314,7 @@ export async function getChatsByUserId(userId) {
     chat_users,
     chats
   WHERE
-    user_id = ${userId} AND
+    chat_users.user_id = ${userId} AND
     chats.id = chat_id
 
   `;
@@ -319,7 +331,7 @@ export async function getChatById(id) {
     WHERE
       id = ${id}
     `;
-  return chat[0];
+  return camelcaseKeys(chat[0]);
 }
 
 export async function getChatMembersByChatId(chatId) {
@@ -353,6 +365,17 @@ export async function createMessage(userId, chatId, content, name) {
       `;
   return camelcaseKeys(message[0]);
 }
+export async function deleteMessages(chatId) {
+  const message = await sql`
+    DELETE FROM
+    messages
+  WHERE
+    chat_id = ${chatId}
+  RETURNING
+    *
+  `;
+  return camelcaseKeys(message[0]);
+}
 
 export async function getMessagesByChatId(chatId) {
   const message = await sql`
@@ -363,8 +386,5 @@ export async function getMessagesByChatId(chatId) {
     WHERE chat_id= ${chatId}
     `;
   const messageHistory = message.filter((m) => m.id);
-  // .map((message) => {
-  //   return { ...message, timestamp: message.timestamp.toString() };
-  // });
   return camelcaseKeys(messageHistory);
 }
