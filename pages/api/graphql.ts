@@ -1,13 +1,15 @@
-import { ServerResponse } from 'node:http';
 import { ApolloServer } from 'apollo-server-micro';
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
   addUsersToChat,
   createChat,
   createMessage,
+  deleteChat,
+  deleteMessages,
   deleteUserActivities,
   deleteUserFromChat,
   deleteUserFromDb,
+  getChatById,
   getMessagesByChatId,
   getSessionByToken,
   getUserById,
@@ -15,22 +17,17 @@ import {
   insertIntoUserActivities,
   updateUser,
 } from '../../util/database';
+import {
+  ChatMessage,
+  ChatUser,
+  Context,
+  SecureUser,
+  Security,
+  UserActivity,
+  UserInfo,
+} from '../../util/types';
 import { createUserWithHash, signIn } from './resolverFunctions';
 import { typeDefs } from './schema';
-
-type Args = {
-  id: number;
-  userId: number;
-  activityId: number;
-  name: string;
-  avatar: string;
-  bio: string;
-  email: string;
-  pw: string;
-  csrfToken: string;
-  chatId: number;
-  content: string;
-};
 
 // Resolvers define the technique for fetching the types defined in the schema
 const resolvers = {
@@ -38,23 +35,21 @@ const resolvers = {
     async users() {
       return await getUsers();
     },
-    async user(
-      parent: void,
-      args: Args,
-      context: { error: string; session: { userId: number } },
-    ) {
-      if (context.error) {
-        throw new Error('Please log in');
+
+    async user(parent: void, args: void, context: Context) {
+      if ('error' in context) {
+        return { error: context.error };
       }
       return await getUserById(context.session.userId);
     },
+
     async messageHistory(
       parent: void,
-      args: Args,
-      context: { error: string; session: { userId: number } },
+      args: { chatId: number },
+      context: Context,
     ) {
-      if (context.error) {
-        return context.error;
+      if ('error' in context) {
+        return { error: context.error };
       }
       // check here if the userId and chatId share a row in the join table
 
@@ -63,12 +58,11 @@ const resolvers = {
   },
 
   Mutation: {
-    async createUser(
-      parent: void,
-      args: Args,
-      context: { res: ServerResponse },
-    ) {
-      const [serializedCookie, user] = await createUserWithHash(
+    async createUser(parent: void, args: SecureUser, context: Context) {
+      if ('session' in context) {
+        return { error: 'Already logged in' };
+      }
+      const [error, serializedCookie, user] = await createUserWithHash(
         args.name,
         args.avatar,
         args.bio,
@@ -76,13 +70,17 @@ const resolvers = {
         args.pw,
         args.csrfToken,
       );
+      if (error) {
+        return { error };
+      }
       // add the cookie to the header
       context.res.setHeader('Set-Cookie', serializedCookie);
       return user;
     },
-    async updateUser(parent: void, args: Args, context: { error: string }) {
-      if (context.error) {
-        return context.error;
+
+    async updateUser(parent: void, args: UserInfo, context: Context) {
+      if ('error' in context) {
+        return { error: context.error };
       }
       return await updateUser(
         Number(args.id),
@@ -91,97 +89,93 @@ const resolvers = {
         args.bio,
       );
     },
-    async deleteUser(parent: void, args: Args, context: { error: string }) {
-      if (context.error) {
-        return context.error;
+
+    async deleteUser(parent: void, args: { id: number }, context: Context) {
+      if ('error' in context) {
+        return { error: context.error };
       }
       const deletedUser = await deleteUserFromDb(args.id);
       return { name: deletedUser };
     },
-    async logUserIn(
-      parent: void,
-      args: Args,
-      context: { res: ServerResponse },
-    ) {
-      const [serializedCookie, user] = await signIn(
+
+    async logUserIn(parent: void, args: Security, context: Context) {
+      const [error, serializedCookie, user] = await signIn(
         args.email,
         args.pw,
         args.csrfToken,
       );
+      if ('session' in context) {
+        return { error: 'Already logged in' };
+      }
+      if (error) {
+        return { error };
+      }
       // add the cookie to the header
       context.res.setHeader('Set-Cookie', serializedCookie);
       return { id: user.id };
     },
+
     async addUserActivities(
       parents: void,
-      args: Args,
-      context: { error: string },
+      args: UserActivity,
+      context: Context,
     ) {
-      if (context.error) {
-        return context.error;
+      if ('error' in context) {
+        return { error: context.error };
       }
       return await insertIntoUserActivities(args.userId, args.activityId);
     },
+
     async deleteAllUserActivities(
       parents: void,
-      args: Args,
-      context: { error: string },
+      args: { userId: number },
+      context: Context,
     ) {
-      if (context.error) {
-        return context.error;
+      if ('error' in context) {
+        return { error: context.error };
       }
       return await deleteUserActivities(args.userId);
     },
+
     async createNewChat(
       parents: void,
-      args: Args,
-      context: { error: string; session: { userId: number } },
+      args: { name: string; userId: number },
+      context: Context,
     ) {
-      if (context.error) {
-        return context.error;
+      if ('error' in context) {
+        return { error: context.error };
       }
-      // first create the chat table -name
-      const chat = await createChat(args.name);
+      // first create the chat table
+      const chat = await createChat(args.name, context.session.userId);
       // add the user who starts the chat to the join table
       await addUsersToChat(context.session.userId, chat.id);
       return chat;
     },
-    async addChatUser(
-      parents: void,
-      args: Args,
-      context: { error: string; session: { userId: number } },
-    ) {
-      if (context.error) {
-        return context.error;
+
+    async addChatUser(parents: void, args: ChatUser, context: Context) {
+      if ('error' in context) {
+        return { error: context.error };
       }
       // check if the current user is authorized to add someone to the chat
       return await addUsersToChat(args.userId, args.chatId);
     },
-    async deleteChatUser(
-      parents: void,
-      args: Args,
-      context: { error: string; session: { userId: number } },
-    ) {
-      console.log(context.session.userId);
-      console.log(args.userId);
-      if (context.error) {
-        throw new Error(context.error);
+
+    async deleteChatUser(parents: void, args: ChatUser, context: Context) {
+      if ('error' in context) {
+        return { error: context.error };
       }
       // check that the user can only delete themselves from a chat
       if (Number(context.session.userId) !== Number(args.userId)) {
-        throw new Error(
-          'You are not allowed to delete someone else from a chat',
-        );
+        return {
+          error: 'You are not allowed to delete someone else from a chat',
+        };
       }
       return await deleteUserFromChat(args.userId, args.chatId);
     },
-    async storeMessage(
-      parents: void,
-      args: Args,
-      context: { error: string; session: { userId: number } },
-    ) {
-      if (context.error) {
-        return context.error;
+
+    async storeMessage(parents: void, args: ChatMessage, context: Context) {
+      if ('error' in context) {
+        return { error: context.error };
       }
 
       return await createMessage(
