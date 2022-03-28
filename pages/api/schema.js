@@ -5,10 +5,10 @@ export const typeDefs = gql`
   type User {
     id: ID
     name: String
+    avatar: String
     bio: String
     email: String
-    pwhash: String
-    avatar: String
+    error: String
   }
   type Id {
     id: ID
@@ -27,6 +27,8 @@ export const typeDefs = gql`
   type Chat {
     id: ID
     name: String
+    userId: ID
+    error: String
   }
   type Message {
     id: ID
@@ -37,6 +39,10 @@ export const typeDefs = gql`
     name: String
   }
   type Error {
+    message: String
+  }
+  type Login {
+    id: ID
     error: String
   }
 
@@ -58,7 +64,7 @@ export const typeDefs = gql`
 
     updateUser(id: ID!, name: String!, avatar: String, bio: String!): User
 
-    logUserIn(email: String!, pw: String!, csrfToken: String!): Id
+    logUserIn(email: String!, pw: String!, csrfToken: String!): Login
 
     addUserActivities(userId: ID!, activityId: ID!): UserActivities
 
@@ -73,5 +79,7 @@ export const typeDefs = gql`
     deleteChatUser(userId: ID!, chatId: ID!): ChatUser
 
     storeMessage(chatId: ID!, content: String!, name: String!): Message
+
+    deleteChatAndMessages(chatId: ID!): Chat
   }
 `;
