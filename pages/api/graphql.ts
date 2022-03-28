@@ -185,6 +185,25 @@ const resolvers = {
         args.name,
       );
     },
+
+    async deleteChatAndMessages(
+      parents: void,
+      args: { chatId: number },
+      context: Context,
+    ) {
+      if ('error' in context) {
+        return { error: context.error };
+      }
+      // check if they're the admin
+      const chat = await getChatById(args.chatId);
+      if (chat.userId !== context.session.userId) {
+        return { error: 'You do not have permission to delete this chat' };
+      }
+      // delete all messages in the chat
+      await deleteMessages(args.chatId);
+      // delete the chat
+      return await deleteChat(args.chatId);
+    },
   },
 };
 
@@ -212,7 +231,7 @@ const apolloServer = new ApolloServer({
       return { error, res };
     }
     // if the token finds a user, return the session
-    return { session, res };
+    return { session };
   },
 });
 
