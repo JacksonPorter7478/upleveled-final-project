@@ -2,6 +2,7 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
 import dynamic from 'next/dynamic';
+import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -133,7 +134,15 @@ export default function TestChat(props) {
   }
 
   return (
-    props.currentUser && (
+    <>
+      <Head>
+        <title>{props.chat.name}</title>
+        <meta
+          name="description"
+          content="Buddies. The chat app to find your people in Vienna."
+        />
+      </Head>
+      props.currentUser && (
       <div className="responsive">
         <Header user={props.currentUser} />
         {errorInfo && <p>{errorInfo}</p>}
@@ -196,7 +205,8 @@ export default function TestChat(props) {
           user={props.currentUser}
         />
       </div>
-    )
+      )
+    </>
   );
 }
 

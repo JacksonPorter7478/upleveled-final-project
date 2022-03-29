@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getFullUserByToken } from '../util/database';
@@ -5,6 +6,13 @@ import { getFullUserByToken } from '../util/database';
 export default function Goodbye() {
   return (
     <>
+      <Head>
+        <title>Buddies - find your people</title>
+        <meta
+          name="description"
+          content="Buddies. The chat app to find your people in Vienna."
+        />
+      </Head>
       <p>All the best for your future adventures!</p>
       <br />
       <Link href="/">

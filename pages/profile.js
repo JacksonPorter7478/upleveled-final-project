@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
+import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -181,6 +182,13 @@ export default function Registration(props) {
 
   return (
     <>
+      <Head>
+        <title>Buddies - edit your profile</title>
+        <meta
+          name="description"
+          content="Buddies. The chat app to find your people in Vienna."
+        />
+      </Head>
       <Header user={props.currentUser} />
       <h1 className="h1Font">
         Edit profile{' '}

@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
 import { GetServerSidePropsContext } from 'next';
+import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -170,6 +171,13 @@ export default function Matches(props: Props) {
 
   return (
     <>
+      <Head>
+        <title>Buddies - your matches</title>
+        <meta
+          name="description"
+          content="All your matches at one glance. Start a group chat and plan your next adventure."
+        />
+      </Head>
       <Header user={props.currentUser} />
       <h1 className="h1Font">
         Matches{' '}

@@ -1,4 +1,5 @@
 import { css } from '@emotion/react';
+import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import Header from '../../components/Header';
@@ -67,88 +68,97 @@ const openChats = css`
 
 export default function User(props) {
   return (
-    <div className="responsive flexColumn">
-      <Header user={props.currentUser} />
-      <h1 className="h1Font">
-        Welcome back, {props.currentUser.name}{' '}
-        <Image
-          src="/paperIcon.png"
-          width="40px"
-          height="40px"
-          alt="the buddies logo: a paper airplane"
+    <>
+      <Head>
+        <title>{props.currentUser.name}'s Dashboard</title>
+        <meta
+          name="description"
+          content="Buddies. The chat app to find your people in Vienna."
         />
-      </h1>
-      <div css={avatar}>
-        <img
-          src={props.currentUser.avatar}
-          alt={`user avatar of a ${props.currentUser.avatar.slice(1, -4)}`}
-        />
-      </div>
-      <p>
-        {props.currentUser.bio}{' '}
-        <span>
-          {' '}
-          <Link href="/profile">
-            <a>
-              <Image
-                src="/editIcon.png"
-                alt=""
-                aria-label="edit my profile"
-                width="14px"
-                height="14px"
-              />
-            </a>
-          </Link>
-        </span>
-      </p>
-      <p css={activity}>
-        {props.activities.map((a) => {
-          return (
-            <span className="activity" key={`user-activities-${a.id}`}>
-              {a.title}
-            </span>
-          );
-        })}
-      </p>
+      </Head>
+      <div className="responsive flexColumn">
+        <Header user={props.currentUser} />
+        <h1 className="h1Font">
+          Welcome back, {props.currentUser.name}{' '}
+          <Image
+            src="/paperIcon.png"
+            width="40px"
+            height="40px"
+            alt="the buddies logo: a paper airplane"
+          />
+        </h1>
+        <div css={avatar}>
+          <img
+            src={props.currentUser.avatar}
+            alt={`user avatar of a ${props.currentUser.avatar.slice(1, -4)}`}
+          />
+        </div>
+        <p>
+          {props.currentUser.bio}{' '}
+          <span>
+            {' '}
+            <Link href="/profile">
+              <a>
+                <Image
+                  src="/editIcon.png"
+                  alt=""
+                  aria-label="edit my profile"
+                  width="14px"
+                  height="14px"
+                />
+              </a>
+            </Link>
+          </span>
+        </p>
+        <p css={activity}>
+          {props.activities.map((a) => {
+            return (
+              <span className="activity" key={`user-activities-${a.id}`}>
+                {a.title}
+              </span>
+            );
+          })}
+        </p>
 
-      <div css={openChats}>
-        <h2 className="h1Font">Current Chats</h2>
-        {props.chats.length === 0 && (
-          <p>
-            You are not currently in any chats.
-            <br />
-            <Link href="/matches">
-              <a>➞ Go to your matches</a>
-            </Link>{' '}
-          </p>
-        )}
-        {props.chats.map((chat) => {
-          return (
-            <div key={`user-${props.currentUser.id}-userChats-${chat.id}`}>
-              <p>
-                <Link href={`/chats/${chat.id}`}>
-                  <a>{chat.name}</a>
-                </Link>{' '}
-                with{' '}
-                {chat.buddies.map((buddy) => {
-                  if (buddy.id !== props.currentUser.id) {
-                    return (
-                      <span
-                        key={`${props.currentUser.id}-${chat.id}-${buddy.id}`}
-                      >
-                        {buddy.name}{' '}
-                      </span>
-                    );
-                  } else {
-                    return null;
-                  }
-                })}
-              </p>
-            </div>
-          );
-        })}
+        <div css={openChats}>
+          <h2 className="h1Font">Current Chats</h2>
+          {props.chats.length === 0 && (
+            <p>
+              You are not currently in any chats.
+              <br />
+              <Link href="/matches">
+                <a>➞ Go to your matches</a>
+              </Link>{' '}
+            </p>
+          )}
+          {props.chats.map((chat) => {
+            return (
+              <div key={`user-${props.currentUser.id}-userChats-${chat.id}`}>
+                <p>
+                  <Link href={`/chats/${chat.id}`}>
+                    <a>{chat.name}</a>
+                  </Link>{' '}
+                  with{' '}
+                  {chat.buddies.map((buddy) => {
+                    if (buddy.id !== props.currentUser.id) {
+                      return (
+                        <span
+                          key={`${props.currentUser.id}-${chat.id}-${buddy.id}`}
+                        >
+                          {buddy.name}{' '}
+                        </span>
+                      );
+                    } else {
+                      return null;
+                    }
+                  })}
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

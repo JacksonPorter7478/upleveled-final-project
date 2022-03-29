@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
 import { GetServerSidePropsContext } from 'next';
+import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -84,6 +85,13 @@ export default function Login(props: { csrfToken: string }) {
 
   return (
     <>
+      <Head>
+        <title>Buddies - Login</title>
+        <meta
+          name="description"
+          content="Buddies. The chat app to find your people in Vienna."
+        />
+      </Head>
       <header css={header}>
         <Link href="/">
           <a>
