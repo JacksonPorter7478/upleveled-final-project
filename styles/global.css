@@ -35,12 +35,11 @@ a {
 }
 
 .buttonStyles {
-  padding: 10px;
+  padding: 4px 10px;
   font-size: 1.3rem;
   font-weight: bold;
   letter-spacing: 4px;
   border: 2px solid #545659;
-  /* border-radius: 4px; */
   border-radius: 30px;
   background-color: transparent;
 }
