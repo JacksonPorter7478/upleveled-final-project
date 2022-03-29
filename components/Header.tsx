@@ -36,7 +36,7 @@ const headerStyles = css`
   }
   .open {
     display: flex;
-    padding: 10px;
+    padding: 15px;
     border-right: 3px solid #389583;
     border-bottom: 3px solid #389583;
     border-bottom-right-radius: 4px;
@@ -44,23 +44,19 @@ const headerStyles = css`
     z-index: 2;
     top: 50px;
     left: 0;
-    right: 70%;
+    width: max-content;
     margin: 0;
     background-color: white;
     flex-direction: column;
+    font-size: 18px;
     a,
     Anchor,
     p {
-      margin: 0;
+      margin: 6px;
       color: #545659;
       text-decoration: none;
     }
   }
-  /* .user {
-    a {
-      color: white;
-    }
-  } */
   .avatar {
     display: inline-block;
     width: 30px;
@@ -115,16 +111,10 @@ export default function Header(props: Props) {
             <a>Matches</a>
           </Link>
           <Link href="/profile">
-            <a>
-              <Image src="/editIcon.png" width="17px" height="17px" alt="" />{' '}
-              Profile
-            </a>
+            <a>Profile </a>
           </Link>
           <p>
-            <Anchor href="/logout">
-              <Image src="/logoutIcon.png" width="17px" height="17px" alt="" />{' '}
-              Logout
-            </Anchor>
+            <Anchor href="/logout">➞ Logout</Anchor>
           </p>
         </div>
         <div className="user">
@@ -134,7 +124,11 @@ export default function Header(props: Props) {
               <div className="avatar">
                 <img
                   src={props.user.avatar}
-                  alt={`user avatar of a ${props.user.avatar.slice(1, -4)}`}
+                  alt={
+                    props.user.avatar.length > 10
+                      ? 'gravatar profile picture'
+                      : `user avatar of a ${props.user.avatar.slice(1, -4)}`
+                  }
                 />
               </div>
             </a>
