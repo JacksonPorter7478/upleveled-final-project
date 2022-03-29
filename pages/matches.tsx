@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
 import { GetServerSidePropsContext } from 'next';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import Header from '../components/Header';
@@ -13,6 +14,11 @@ import matchUsers from '../util/match';
 import { chatUserMutation, createChatMutation } from './api/client';
 
 const userStyles = (grayScale: number, checked: number) => css`
+  width: 100%;
+  @media screen and (min-width: 900px) {
+    width: 60%;
+    margin-top: 30px;
+  }
   border: 2px solid #ebebeb;
   border-radius: 6px;
   padding: 0 20px 20px;
@@ -20,6 +26,7 @@ const userStyles = (grayScale: number, checked: number) => css`
   line-height: 1.3;
   opacity: ${grayScale};
   opacity: ${checked};
+
   .invisible {
     opacity: 0;
     height: 0;
@@ -27,6 +34,11 @@ const userStyles = (grayScale: number, checked: number) => css`
   }
   .visible {
     opacity: 0;
+    :focus + div {
+      padding: 15px;
+      border: 1px solid #ebebeb;
+      border-radius: 4px;
+    }
   }
   .name {
     display: flex;
@@ -83,28 +95,31 @@ const userStyles = (grayScale: number, checked: number) => css`
 
 const startChatDiv = css`
   width: 100%;
+
+  @media screen and (min-width: 900px) {
+    width: 60%;
+    margin-top: 30px;
+  }
   .invisible {
     opacity: 0;
     height: 0;
     overflow: hidden;
   }
+  .visible {
+    justify-content: center;
+    align-items: center;
+  }
   button {
     padding: 0 4px;
     letter-spacing: 1px;
     margin-bottom: 10px;
-    border-radius: 30px;
   }
 `;
 
 const openChatStyles = css`
   padding: 0 6px;
-  margin-bottom: 30px;
+  margin: 30px 0 60px 0;
   letter-spacing: 2px;
-  border-radius: 30px;
-  img {
-    width: 30px;
-    margin: 2px;
-  }
 `;
 
 type User = { id: number; name: string; bio: string; avatar: string };
@@ -157,7 +172,15 @@ export default function Matches(props: Props) {
   return (
     <>
       <Header user={props.currentUser} />
-      <h1 className="h1Font">Welcome back, {props.currentUser.name}</h1>
+      <h1 className="h1Font">
+        Matches{' '}
+        <Image
+          src="/paperIcon.png"
+          width="40px"
+          height="40px"
+          alt="the buddies logo: a paper airplane"
+        />
+      </h1>
       <button
         css={openChatStyles}
         className="buttonStyles"
@@ -167,14 +190,15 @@ export default function Matches(props: Props) {
           );
         }}
       >
-        Start a new group
-        <img src="/chatIcon.svg" alt="" />
+        {divVisibility === 'invisible'
+          ? 'Start a new group'
+          : 'Hide chat options'}
       </button>
       <div css={startChatDiv}>
-        <div className={divVisibility}>
+        <div className={`${divVisibility} flexColumn`}>
           {error && <p>{error}</p>}
           <label>
-            Give your chat a name:
+            1. Give your chat a name:
             <br />
             <input
               value={chatName}
@@ -183,7 +207,8 @@ export default function Matches(props: Props) {
             />
           </label>
           <p>
-            Select up to 5 people for this chat:
+            2. Select up to 5 people for this chat:
+            <br />
             {chatMembers.map((member) => {
               return (
                 <span key={`invite-${member.userId}-to-chat`}>
@@ -193,9 +218,11 @@ export default function Matches(props: Props) {
               );
             })}
           </p>
-          <button onClick={() => openNewChat()} className="buttonStyles">
-            Open chat
-          </button>
+          {chatMembers.length > 0 && (
+            <button onClick={() => openNewChat()} className="buttonStyles">
+              Open chat
+            </button>
+          )}
         </div>
       </div>
       {props.matchesList.map((m) => {
@@ -203,12 +230,12 @@ export default function Matches(props: Props) {
           <label
             key={`dashboard-users-${m.matchInfo.id}`}
             css={userStyles(
-              divVisibility === 'invisible' ? 1 : 0.6,
+              divVisibility === 'invisible' ? 1 : 0.5,
               divVisibility === 'invisible'
                 ? 1
                 : checked.some((item) => item.id === m.matchInfo.id)
                 ? 1
-                : 0.6,
+                : 0.5,
             )}
           >
             <div>
@@ -237,23 +264,35 @@ export default function Matches(props: Props) {
                   );
                 }}
               />
-              <div className="name">
-                <h2>{m.matchInfo.name}</h2>
-                <div className="avatar">
-                  <img src={m.matchInfo.avatar} alt="user avatar" />
+              <div>
+                <div className="name">
+                  <h2>{m.matchInfo.name}</h2>
+                  <div className="avatar">
+                    <img
+                      src={m.matchInfo.avatar}
+                      alt={
+                        m.matchInfo.avatar.length > 10
+                          ? 'gravatar profile picture'
+                          : `user avatar of a ${m.matchInfo.avatar.slice(
+                              1,
+                              -4,
+                            )}`
+                      }
+                    />
+                  </div>
                 </div>
+                <p className="bio">{m.matchInfo.bio}</p>
+                {m.matchActivities.map((activity) => {
+                  return (
+                    <span
+                      className="activity"
+                      key={`dashboard-${m.matchInfo.id}-activity-${activity.id}`}
+                    >
+                      {activity.title}
+                    </span>
+                  );
+                })}
               </div>
-              <p className="bio">{m.matchInfo.bio}</p>
-              {m.matchActivities.map((activity) => {
-                return (
-                  <span
-                    className="activity"
-                    key={`dashboard-${m.matchInfo.id}-activity-${activity.id}`}
-                  >
-                    {activity.title}
-                  </span>
-                );
-              })}
             </div>
           </label>
         );
