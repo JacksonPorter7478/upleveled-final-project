@@ -16,6 +16,7 @@ const avatar = css`
   outline: 6px solid #05396b;
   overflow: hidden;
   margin: 10px;
+  text-align: center;
   img {
     height: 100%;
     width: 100%;
@@ -59,13 +60,16 @@ const activity = css`
 
 const openChats = css`
   width: 100%;
+  h2 {
+    margin: 25px;
+  }
 `;
 
 export default function User(props) {
   return (
-    <>
+    <div className="responsive flexColumn">
       <Header user={props.currentUser} />
-      <h1 className="h1Font">Hi, {props.currentUser.name}</h1>
+      <h1 className="h1Font">Welcome back, {props.currentUser.name} </h1>
       <div css={avatar}>
         <img
           src={props.currentUser.avatar}
@@ -102,12 +106,13 @@ export default function User(props) {
       <div css={openChats}>
         <h2 className="h1Font">Current Chats</h2>
         {props.chats.length === 0 && (
-          <Link href="/matches">
-            <a>
-              You are not currently in any chats. Go to your matches to create a
-              new conversation.
-            </a>
-          </Link>
+          <p>
+            You are not currently in any chats.
+            <br />
+            <Link href="/matches">
+              <a>➞ Go to your matches</a>
+            </Link>{' '}
+          </p>
         )}
         {props.chats.map((chat) => {
           return (
@@ -135,7 +140,7 @@ export default function User(props) {
           );
         })}
       </div>
-    </>
+    </div>
   );
 }
 
