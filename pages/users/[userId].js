@@ -70,7 +70,7 @@ export default function User(props) {
   return (
     <>
       <Head>
-        <title>{props.currentUser.name}'s Dashboard</title>
+        <title>Buddies Dashboard</title>
         <meta
           name="description"
           content="Buddies. The chat app to find your people in Vienna."

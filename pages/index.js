@@ -259,7 +259,7 @@ export async function getServerSideProps(context) {
 // X admin can't leave the chat
 // X admin can delete a chat and its chatHistory
 // X use the logo in some places, maybe when 'loading...'
-// O invite people into the existing chat
-// O redirect from landing page, if logged in
-// O add <Head> to every page
+// X add <Head> to every page
 // X add a favicon
+// X redirect from landing page, if logged in
+// O invite people into the existing chat

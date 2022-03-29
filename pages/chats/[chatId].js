@@ -1,4 +1,3 @@
-// import { useQuery } from '@apollo/client';
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
 import dynamic from 'next/dynamic';
@@ -14,8 +13,6 @@ import {
   getMessagesByChatId,
 } from '../../util/database';
 import { chatUserDeleteMutation, deleteChatMutation } from '../api/client';
-
-// import { messageHistoryQuery } from '../api/client';
 
 // this chat component isn't suitable for Server Side Rendering. By default, Next.js attempts to render everything on the server side
 // by using a dynamic() call, we can tell Next.js not to render this during the build process,
