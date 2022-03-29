@@ -2,7 +2,6 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import Header from '../../components/Header';
@@ -12,7 +11,7 @@ import {
   getFullUserByToken,
   getMessagesByChatId,
 } from '../../util/database';
-import { chatUserDeleteMutation } from '../api/client';
+import { chatUserDeleteMutation, deleteChatMutation } from '../api/client';
 
 // import { messageHistoryQuery } from '../api/client';
 
@@ -51,7 +50,7 @@ const top = css`
   padding: 0;
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   a {
     text-decoration: none;
     color: black;
@@ -61,6 +60,7 @@ const top = css`
     border: none;
     text-decoration: underline;
     border-radius: 4px;
+    margin-top: 15px;
   }
   .popup {
     width: 0;
@@ -69,15 +69,19 @@ const top = css`
   }
   .popup.open {
     width: 75vw;
-    height: 30vh;
+    height: min-content;
     padding: 20px;
     position: absolute;
-    top: 20vh;
+    top: 10vh;
     left: 7vw;
     background-color: #ebebeb;
     border: 2px solid #05396b;
     border-radius: 4px;
     font-size: 24px;
+    @media screen and (min-width: 900px) {
+      width: 400px;
+      left: 10vw;
+    }
     div {
       margin-top: 15px;
       display: flex;
@@ -98,27 +102,53 @@ const h1 = css`
 
 export default function TestChat(props) {
   const [popup, setPopup] = useState('closed');
+  const [errorInfo, setErrorInfo] = useState('');
   const router = useRouter();
-  const [deleteChat] = useMutation(chatUserDeleteMutation);
+  const [deleteUserFromChat] = useMutation(chatUserDeleteMutation);
+  const [deleteChatFromDb] = useMutation(deleteChatMutation);
 
   async function leaveChat() {
     try {
-      const deleted = await deleteChat({
+      await deleteUserFromChat({
         variables: { userId: props.currentUser.id, chatId: props.chat.id },
       });
-      console.log(deleted);
       await router.push(`/matches`);
     } catch (err) {
-      console.log(err);
+      setErrorInfo('Oh no! There has been an issue. Please try again later.');
+    }
+  }
+
+  async function deleteChat() {
+    try {
+      await deleteChatFromDb({
+        variables: {
+          chatId: props.chat.id,
+        },
+      });
+      await router.push(`/matches`);
+    } catch (err) {
+      setErrorInfo('Oh no! There has been an issue. Please try again later.');
     }
   }
 
   return (
-    <>
-      {props.error && <h1>{props.error}</h1>}
-      {props.currentUser && (
-        <>
-          <Header user={props.currentUser} />
+    props.currentUser && (
+      <div className="responsive">
+        <Header user={props.currentUser} />
+        {errorInfo && <p>{errorInfo}</p>}
+        {props.currentUser.id === props.chat.userId ? (
+          <div css={top}>
+            <div className={`popup ${popup}`}>
+              Are you sure you want to permanently delete this chat and all the
+              messages in it?
+              <div>
+                <button onClick={() => deleteChat()}>Delete</button>
+                <button onClick={() => setPopup('closed')}>Cancel</button>
+              </div>
+            </div>
+            <button onClick={() => setPopup('open')}>Delete this chat</button>
+          </div>
+        ) : (
           <div css={top}>
             <div className={`popup ${popup}`}>
               Are you sure you want to leave this chat?
@@ -131,35 +161,35 @@ export default function TestChat(props) {
               Want to leave this chat?
             </button>
           </div>
-          <h1 className="h1Font" css={h1}>
-            {props.chat.name}
-          </h1>
-          <div css={members}>
-            Buddies in this chat:
-            <br />
-            {props.chatMembers.map((member) => {
-              return (
-                <div
-                  key={`chat-${props.chat.id}-user-${member.id}`}
-                  className="buddies"
-                >
-                  <div className="avatar">
-                    <img src={member.avatar} alt="" />
-                  </div>
-                  <span>{member.name}</span>
+        )}
+        <h1 className="h1Font" css={h1}>
+          {props.chat.name}
+        </h1>
+        <div css={members}>
+          Buddies in this chat:
+          <br />
+          {props.chatMembers.map((member) => {
+            return (
+              <div
+                key={`chat-${props.chat.id}-user-${member.id}`}
+                className="buddies"
+              >
+                <div className="avatar">
+                  <img src={member.avatar} alt="" />
                 </div>
-              );
-            })}
-            <br />
-          </div>
-          <AblyChatComponent
-            chatId={props.chat.id}
-            chatHistory={props.chatHistory}
-            user={props.currentUser}
-          />
-        </>
-      )}
-    </>
+                <span>{member.name}</span>
+              </div>
+            );
+          })}
+          <br />
+        </div>
+        <AblyChatComponent
+          chatId={props.chat.id}
+          chatHistory={props.chatHistory}
+          user={props.currentUser}
+        />
+      </div>
+    )
   );
 }
 
@@ -170,11 +200,17 @@ export async function getServerSideProps(context) {
   const currentUser = await getFullUserByToken(token);
   if (currentUser) {
     // get the chat via the id from the url
-    const chatId = context.query.chatId;
-    const chat = await getChatById(chatId);
-
+    const chat = await getChatById(context.query.chatId);
+    if (!chat) {
+      return {
+        redirect: {
+          destination: '/matches',
+          permanent: false,
+        },
+      };
+    }
     // get all chat members
-    const chatMembers = await getChatMembersByChatId(chatId);
+    const chatMembers = await getChatMembersByChatId(chat.id);
     // if the current user isn't in this chat, send them to another page
     if (!chatMembers.some((member) => member.id === currentUser.id)) {
       return {
@@ -185,7 +221,7 @@ export async function getServerSideProps(context) {
       };
     }
     // this is faster than the graphql API route
-    const chatHistory = await getMessagesByChatId(chatId);
+    const chatHistory = await getMessagesByChatId(chat.id);
     // if there is a logged in user who is part of this chat
     return {
       props: {
