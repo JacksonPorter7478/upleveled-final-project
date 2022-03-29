@@ -9,14 +9,12 @@ const chatHolder = css`
   grid-template-rows: 1fr 70px;
   border: 2px solid #05396b;
   border-radius: 4px;
-
+  height: 90vh;
   .chatText {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 1em;
     padding: 1em;
-    height: calc(100vh - 40px - 100px - 100px - 100px);
     overflow-y: auto;
   }
 
@@ -41,21 +39,27 @@ const chatHolder = css`
     letter-spacing: 4px;
     font-size: 1.4em;
     background: #05396b;
-  }
 
-  .button:hover {
-    background: #fff001;
-  }
+    :focus {
+      border: 4px solid #bff0d1;
+    }
 
-  .button:disabled,
-  .button:hover:disabled {
-    background: #8de4af;
-    opacity: 40%;
+    :hover {
+      background: #389583;
+    }
+
+    :disabled,
+    :hover:disabled {
+      background: #8de4af;
+      opacity: 40%;
+    }
   }
 
   .message {
+    font-size: 18px;
     background-color: #bff0d1;
-    padding: 1em;
+    padding: 0.7em;
+    line-height: 1.5;
     border-radius: 10px;
     flex-grow: 0;
     border-bottom-left-radius: 0;
@@ -97,6 +101,7 @@ export default function AblyChatComponent(props) {
   });
 
   async function sendChatMessage() {
+    // publish the message, add user's name in the name payload
     channel.publish({
       name: props.user.name,
       data: messageText,
@@ -151,7 +156,7 @@ export default function AblyChatComponent(props) {
 
   // scroll the message history to the bottom whenever the component renders
   useEffect(() => {
-    messageEnd.scrollIntoView({ behaviour: 'smooth' });
+    // messageEnd.scrollIntoView({ behaviour: 'smooth' });
   });
 
   return (
@@ -165,7 +170,7 @@ export default function AblyChatComponent(props) {
           }}
         />
       </div>
-      <form onSubmit={() => handleFormSubmission} className="form">
+      <form onSubmit={handleFormSubmission} className="form">
         <textarea
           ref={inputFocus}
           value={messageText}
