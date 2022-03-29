@@ -2,6 +2,7 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import Header from '../../components/Header';
@@ -163,7 +164,13 @@ export default function TestChat(props) {
           </div>
         )}
         <h1 className="h1Font" css={h1}>
-          {props.chat.name}
+          {props.chat.name}{' '}
+          <Image
+            src="/paperIcon.png"
+            width="40px"
+            height="40px"
+            alt="the buddies logo: a paper airplane"
+          />
         </h1>
         <div css={members}>
           Buddies in this chat:

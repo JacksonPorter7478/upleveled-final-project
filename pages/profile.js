@@ -182,7 +182,15 @@ export default function Registration(props) {
   return (
     <>
       <Header user={props.currentUser} />
-      <h1 className="h1Font">Your Profile</h1>
+      <h1 className="h1Font">
+        Edit profile{' '}
+        <Image
+          src="/paperIcon.png"
+          width="40px"
+          height="40px"
+          alt="the buddies logo: a paper airplane"
+        />
+      </h1>
 
       <form
         css={formStyles}

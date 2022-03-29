@@ -69,7 +69,15 @@ export default function User(props) {
   return (
     <div className="responsive flexColumn">
       <Header user={props.currentUser} />
-      <h1 className="h1Font">Welcome back, {props.currentUser.name} </h1>
+      <h1 className="h1Font">
+        Welcome back, {props.currentUser.name}{' '}
+        <Image
+          src="/paperIcon.png"
+          width="40px"
+          height="40px"
+          alt="the buddies logo: a paper airplane"
+        />
+      </h1>
       <div css={avatar}>
         <img
           src={props.currentUser.avatar}
