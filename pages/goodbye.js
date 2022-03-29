@@ -1,7 +1,32 @@
+import Image from 'next/image';
+import Link from 'next/link';
 import { getFullUserByToken } from '../util/database';
 
 export default function Goodbye() {
-  return <>All the best for your future adventures!</>;
+  return (
+    <>
+      <p>All the best for your future adventures!</p>
+      <br />
+      <Link href="/">
+        <a
+          style={{
+            textDecoration: 'none',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          className="flexColumn"
+        >
+          <Image
+            src="/paperIcon.png"
+            alt="Loading your profile..."
+            width="90vw"
+            height="90vw"
+          />
+          <h1 className="h1Font">Buddies</h1>
+        </a>
+      </Link>
+    </>
+  );
 }
 
 export async function getServerSideProps(context) {
