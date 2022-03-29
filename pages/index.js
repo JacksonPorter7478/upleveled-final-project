@@ -102,7 +102,7 @@ export default function Dashboard() {
       </Head>
       <div css={homeStyles} className="pageWrap">
         <div className="imgWrap">
-          <img className="bgPhotoS" src="/picknickNew.jpg" alt="" />
+          <img className="bgPhotoS" src="/picknick.jpg" alt="" />
         </div>
         <div className="text flexColumn">
           <div className="top flexColumn">
