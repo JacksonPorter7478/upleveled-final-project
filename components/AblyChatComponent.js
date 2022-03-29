@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createMsgMutation } from '../pages/api/client';
 import { useChannel } from './AblyReactEffect';
 
@@ -156,7 +156,7 @@ export default function AblyChatComponent(props) {
 
   // scroll the message history to the bottom whenever the component renders
   useEffect(() => {
-    // messageEnd.scrollIntoView({ behaviour: 'smooth' });
+    messageEnd.scrollIntoView({ behaviour: 'smooth' });
   });
 
   return (

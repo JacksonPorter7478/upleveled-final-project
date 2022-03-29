@@ -74,7 +74,7 @@ const top = css`
     height: min-content;
     padding: 20px;
     position: absolute;
-    top: 10vh;
+    top: 50vh;
     left: 7vw;
     background-color: #ebebeb;
     border: 2px solid #05396b;
@@ -98,8 +98,7 @@ const top = css`
   }
 `;
 const h1 = css`
-  margin: 2vh;
-  margin-top: 1.5vh;
+  margin: 30px 0;
 `;
 
 export default function TestChat(props) {
