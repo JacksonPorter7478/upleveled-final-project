@@ -142,70 +142,70 @@ export default function TestChat(props) {
           content="Buddies. The chat app to find your people in Vienna."
         />
       </Head>
-      props.currentUser && (
-      <div className="responsive">
-        <Header user={props.currentUser} />
-        {errorInfo && <p>{errorInfo}</p>}
-        {props.currentUser.id === props.chat.userId ? (
-          <div css={top}>
-            <div className={`popup ${popup}`}>
-              Are you sure you want to permanently delete this chat and all the
-              messages in it?
-              <div>
-                <button onClick={() => deleteChat()}>Delete</button>
-                <button onClick={() => setPopup('closed')}>Cancel</button>
-              </div>
-            </div>
-            <button onClick={() => setPopup('open')}>Delete this chat</button>
-          </div>
-        ) : (
-          <div css={top}>
-            <div className={`popup ${popup}`}>
-              Are you sure you want to leave this chat?
-              <div>
-                <button onClick={() => leaveChat()}>Leave</button>
-                <button onClick={() => setPopup('closed')}>Cancel</button>
-              </div>
-            </div>
-            <button onClick={() => setPopup('open')}>
-              Want to leave this chat?
-            </button>
-          </div>
-        )}
-        <h1 className="h1Font" css={h1}>
-          {props.chat.name}{' '}
-          <Image
-            src="/paperIcon.png"
-            width="40px"
-            height="40px"
-            alt="the buddies logo: a paper airplane"
-          />
-        </h1>
-        <div css={members}>
-          Buddies in this chat:
-          <br />
-          {props.chatMembers.map((member) => {
-            return (
-              <div
-                key={`chat-${props.chat.id}-user-${member.id}`}
-                className="buddies"
-              >
-                <div className="avatar">
-                  <img src={member.avatar} alt="" />
+      {props.currentUser && (
+        <div className="responsive">
+          <Header user={props.currentUser} />
+          {errorInfo && <p>{errorInfo}</p>}
+          {props.currentUser.id === props.chat.userId ? (
+            <div css={top}>
+              <div className={`popup ${popup}`}>
+                Are you sure you want to permanently delete this chat and all
+                the messages in it?
+                <div>
+                  <button onClick={() => deleteChat()}>Delete</button>
+                  <button onClick={() => setPopup('closed')}>Cancel</button>
                 </div>
-                <span>{member.name}</span>
               </div>
-            );
-          })}
-          <br />
+              <button onClick={() => setPopup('open')}>Delete this chat</button>
+            </div>
+          ) : (
+            <div css={top}>
+              <div className={`popup ${popup}`}>
+                Are you sure you want to leave this chat?
+                <div>
+                  <button onClick={() => leaveChat()}>Leave</button>
+                  <button onClick={() => setPopup('closed')}>Cancel</button>
+                </div>
+              </div>
+              <button onClick={() => setPopup('open')}>
+                Want to leave this chat?
+              </button>
+            </div>
+          )}
+          <h1 className="h1Font" css={h1}>
+            {props.chat.name}{' '}
+            <Image
+              src="/paperIcon.png"
+              width="40px"
+              height="40px"
+              alt="the buddies logo: a paper airplane"
+            />
+          </h1>
+          <div css={members}>
+            Buddies in this chat:
+            <br />
+            {props.chatMembers.map((member) => {
+              return (
+                <div
+                  key={`chat-${props.chat.id}-user-${member.id}`}
+                  className="buddies"
+                >
+                  <div className="avatar">
+                    <img src={member.avatar} alt="" />
+                  </div>
+                  <span>{member.name}</span>
+                </div>
+              );
+            })}
+            <br />
+          </div>
+          <AblyChatComponent
+            chatId={props.chat.id}
+            chatHistory={props.chatHistory}
+            user={props.currentUser}
+          />
         </div>
-        <AblyChatComponent
-          chatId={props.chat.id}
-          chatHistory={props.chatHistory}
-          user={props.currentUser}
-        />
-      </div>
-      )
+      )}
     </>
   );
 }
