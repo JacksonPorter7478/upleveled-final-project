@@ -30,7 +30,7 @@ const header = css`
     #8de4af,
     #bff0d1
   );
-  a:nth-child(2) {
+  a:nth-of-type(2) {
     font-size: 26px;
     text-decoration: none;
   }
@@ -132,6 +132,7 @@ export default function Registration(props) {
       return { id: a.id, checked: false };
     }),
   );
+  const [errorInfo, setErrorInfo] = useState('');
   const router = useRouter();
   const [createNewUser, { loading, error }] = useMutation(createMutation);
   const [addToUser] = useMutation(addActivity);
@@ -143,12 +144,14 @@ export default function Registration(props) {
 
   async function submitRegistration(event) {
     event.preventDefault();
+    // clear the input error and set it only if fewer than 4 activities were chosen
     setActivityInputError('');
-    if (activities.length < 5) {
-      setActivityInputError('Please choose at least 5 activities');
+    if (activities.length < 4) {
+      setActivityInputError('Please choose at least 4 activities');
       return;
     }
     try {
+      // create the user
       const user = await createNewUser({
         variables: {
           name: name,
@@ -159,6 +162,12 @@ export default function Registration(props) {
           csrfToken: props.csrfToken,
         },
       });
+      // if there is an error object, show the custom message
+      if (user.data.createUser.error) {
+        setErrorInfo(user.data.createUser.error);
+        return;
+      }
+      // send the user's activities to the db
       for (const activity of activities) {
         await addToUser({
           variables: {
@@ -167,11 +176,13 @@ export default function Registration(props) {
           },
         });
       }
-      router
-        .push(`/users/${user.data.createUser.id}`)
-        .catch((err) => console.log('router: ' + err));
+
+      // redirect to their newly created profile
+      await router.push(`/users/${user.data.createUser.id}`);
     } catch (err) {
-      console.log('Error creating the user: ' + err);
+      setErrorInfo(
+        'There has been an error creating your profile. Please try again later!',
+      );
     }
   }
 
@@ -202,11 +213,16 @@ export default function Registration(props) {
         </Link>
       </header>
       <h1 className="h1Font">Sign up</h1>
-      {error && <h2>{error.message}</h2>}
-      {activityInputError && <h2>{activityInputError}</h2>}
+      {error && (
+        <h2>
+          There has been a problem creating your profile. Please try again
+          later!
+        </h2>
+      )}
+
       <form
         css={formStyles}
-        className="flexColumn"
+        className="flexColumn responsive"
         onSubmit={submitRegistration}
       >
         <div>
@@ -300,7 +316,7 @@ export default function Registration(props) {
           </label>
           <div css={checkboxStyles}>
             <h3>Your Categories</h3>
-            <p>Please choose at least 5</p>
+            <p>Please choose at least 4</p>
             {props.activities.map((a) => {
               return (
                 <div key={`register-activity-${a.id}`}>
@@ -356,6 +372,8 @@ export default function Registration(props) {
           </label>
           <br />
         </div>
+        {errorInfo && <h2>{errorInfo}</h2>}
+        {activityInputError && <h2>{activityInputError}</h2>}
         <button className="buttonStyles">Sign up</button>
       </form>
     </>
