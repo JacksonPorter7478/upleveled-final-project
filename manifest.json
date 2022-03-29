@@ -1,0 +1,26 @@
+{
+  "short_name": "Buddies",
+  "name": "Buddies - find you people",
+  "description": "Progressive Web App that matches users of similar interests and allows them to communicate in small group chats.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#05396b",
+  "background_color": "#bff0d1"
+}
