@@ -138,8 +138,8 @@ export default function Registration(props) {
   async function submitUserUpdate(event) {
     event.preventDefault();
     setActivityInputError('');
-    if (activities.length < 5) {
-      setActivityInputError('Please choose at least 5 activities');
+    if (activities.length < 4) {
+      setActivityInputError('Please choose at least 4 activities');
       return;
     }
     try {
@@ -164,7 +164,7 @@ export default function Registration(props) {
         },
       });
       // redirect to their users page
-      router.push(`/users/${id}`).catch((err) => console.log(err));
+      await router.push(`/users/${id}`);
     } catch (error) {
       console.log(error);
     }
@@ -183,8 +183,12 @@ export default function Registration(props) {
     <>
       <Header user={props.currentUser} />
       <h1 className="h1Font">Your Profile</h1>
-      {activityInputError && <h2>{activityInputError}</h2>}
-      <form css={formStyles} className="flexColumn" onSubmit={submitUserUpdate}>
+
+      <form
+        css={formStyles}
+        className="flexColumn responsive"
+        onSubmit={submitUserUpdate}
+      >
         <div>
           <label>
             <h2>Name</h2>
@@ -270,7 +274,7 @@ export default function Registration(props) {
           </label>
           <div css={checkboxStyles}>
             <h3>Your Categories</h3>
-            <p>Please choose at least 5</p>
+            <p>Please choose at least 4</p>
             {props.dbActivities.map((a) => {
               return (
                 <div key={`register-activity-${a.id}`}>
@@ -305,6 +309,7 @@ export default function Registration(props) {
             })}
           </div>
         </div>
+        {activityInputError && <h2>{activityInputError}</h2>}
         <button className="buttonStyles">Save</button>
       </form>
       <button css={deleteStyles} onClick={() => deleteUserAccount()}>
