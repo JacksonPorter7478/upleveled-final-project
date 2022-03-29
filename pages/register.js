@@ -17,7 +17,6 @@ const header = css`
   display: flex;
   width: 100vw;
   margin-top: -6vh;
-  margin-bottom: 5vh;
   padding: 20px;
   justify-content: space-around;
   border-bottom: 3px solid;
@@ -212,7 +211,15 @@ export default function Registration(props) {
           <a>Sign in</a>
         </Link>
       </header>
-      <h1 className="h1Font">Sign up</h1>
+      <h1 className="h1Font">
+        Sign up{' '}
+        <Image
+          src="/paperIcon.png"
+          width="40px"
+          height="40px"
+          alt="the buddies logo: a paper airplane"
+        />
+      </h1>
       {error && (
         <h2>
           There has been a problem creating your profile. Please try again

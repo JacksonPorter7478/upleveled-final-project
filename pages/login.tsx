@@ -14,7 +14,6 @@ const header = css`
   display: flex;
   width: 100vw;
   margin-top: -6vh;
-  margin-bottom: 5vh;
   padding: 20px;
   justify-content: space-around;
   border-bottom: 3px solid;
@@ -36,8 +35,9 @@ const header = css`
 const formStyles = css`
   align-items: center;
   width: 100%;
+  margin-top: 20px;
   button {
-    margin: 40px;
+    margin: 45px;
   }
 `;
 
@@ -94,7 +94,15 @@ export default function Login(props: { csrfToken: string }) {
           <a>Sign up</a>
         </Link>
       </header>
-      <h1 className="h1Font">Sign in</h1>
+      <h1 className="h1Font">
+        Sign in{' '}
+        <Image
+          src="/paperIcon.png"
+          width="40px"
+          height="40px"
+          alt="the buddies logo: a paper airplane"
+        />
+      </h1>
       {error && <h2>Sorry, there has been an error. Try again later!</h2>}
       {errorInfo && <h2>{errorInfo}</h2>}
       <form
