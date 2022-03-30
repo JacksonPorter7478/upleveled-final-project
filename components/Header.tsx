@@ -109,6 +109,9 @@ export default function Header(props: Props) {
           <Link href="/profile">
             <a>Profile </a>
           </Link>
+          <Link href="/about">
+            <a>About </a>
+          </Link>
           <p>
             <Anchor href="/logout">➞ Logout</Anchor>
           </p>
