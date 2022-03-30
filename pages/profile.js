@@ -109,6 +109,7 @@ const deleteStyles = css`
 `;
 
 export default function Registration(props) {
+  const [error, setError] = useState('');
   const [name, setName] = useState(props.currentUser.name);
   const [avatar, setAvatar] = useState(props.currentUser.avatar);
   const [bio, setBio] = useState(props.currentUser.bio);
@@ -121,8 +122,8 @@ export default function Registration(props) {
   );
   const [deleteAccount] = useMutation(deleteMutation);
   const [deleteActivities] = useMutation(deleteUserActivities);
-  const [updateUser] = useMutation(updateMutation);
   const [updateActivities] = useMutation(addActivity);
+  const [updateUser] = useMutation(updateMutation);
   const router = useRouter();
   const md5 = require('md5');
   const id = props.currentUser.id;
@@ -160,8 +161,8 @@ export default function Registration(props) {
       });
       // redirect to their users page
       await router.push(`/users/${id}`);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      setError('Something went wrong. Please try again later!');
     }
   }
 
@@ -170,7 +171,7 @@ export default function Registration(props) {
       await deleteAccount({ variables: { id: id } });
       router.push('/goodbye').catch((err) => console.log(err));
     } catch (err) {
-      console.log(err);
+      setError('Something went wrong. Please try again later!');
     }
   }
 
@@ -329,6 +330,7 @@ export default function Registration(props) {
           </div>
         </div>
         {activityInputError && <h2>{activityInputError}</h2>}
+        {error && <h2>{error}</h2>}
         <button className="buttonStyles">Save</button>
       </form>
       <button css={deleteStyles} onClick={() => deleteUserAccount()}>
