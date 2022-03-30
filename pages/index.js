@@ -28,7 +28,11 @@ const homeStyles = css`
   .bgPhotoM {
     opacity: 0.6;
     height: 100%;
-    @media screen and (max-width: 600px) and (min-width: 1100px) {
+    @media screen and (max-width: 600px) {
+      opacity: 0;
+      height: 0;
+    }
+    @media screen and (min-width: 1100px) {
       opacity: 0;
       height: 0;
     }
