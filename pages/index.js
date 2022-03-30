@@ -20,6 +20,26 @@ const homeStyles = css`
   .bgPhotoS {
     opacity: 0.6;
     height: 100%;
+    @media screen and (min-width: 600px) {
+      opacity: 0;
+      height: 0;
+    }
+  }
+  .bgPhotoM {
+    opacity: 0.6;
+    height: 100%;
+    @media screen and (max-width: 600px) and (min-width: 1100px) {
+      opacity: 0;
+      height: 0;
+    }
+  }
+  .bgPhotoL {
+    opacity: 0.6;
+    height: 100%;
+    @media screen and (max-width: 1100px) {
+      opacity: 0;
+      height: 0;
+    }
   }
 
   .text {
@@ -103,6 +123,8 @@ export default function Dashboard() {
       <div css={homeStyles} className="pageWrap">
         <div className="imgWrap">
           <img className="bgPhotoS" src="/picknick.jpg" alt="" />
+          <img className="bgPhotoM" src="/picknickM.jpg" alt="" />
+          <img className="bgPhotoL" src="/picknickL.jpg" alt="" />
         </div>
         <div className="text flexColumn">
           <div className="top flexColumn">
