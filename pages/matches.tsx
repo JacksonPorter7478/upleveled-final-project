@@ -51,10 +51,6 @@ const userStyles = (grayScale: number, checked: number) => css`
       outline: 6px solid #05396b;
       overflow: hidden;
       margin-bottom: 16px;
-      img {
-        width: 100%;
-        height: 100%;
-      }
     }
   }
   .bio {
@@ -275,7 +271,9 @@ export default function Matches(props: Props) {
                 <div className="name">
                   <h2>{m.matchInfo.name}</h2>
                   <div className="avatar">
-                    <img
+                    <Image
+                      width="80px"
+                      height="80px"
                       src={m.matchInfo.avatar}
                       alt={
                         m.matchInfo.avatar.length > 10

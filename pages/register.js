@@ -5,9 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import duck from '../public/duck.jpg';
-import kitten from '../public/kitten.jpg';
-import puppy from '../public/puppy.jpg';
 import { createCsrfToken } from '../util/auth';
 import { getActivities, getSessionByToken } from '../util/database';
 import { addActivity, createMutation } from './api/client';
@@ -70,10 +67,6 @@ const formStyles = css`
       outline: 6px solid #05396b;
       overflow: hidden;
       margin: 15px;
-      Image,
-      img {
-        height: 100%;
-      }
     }
     input {
       opacity: 0;
@@ -268,7 +261,12 @@ export default function Registration(props) {
                 }}
               />
               <label htmlFor="duck" aria-labelledby="radio">
-                <Image src={duck} alt="a baby duck mid-walk" />
+                <Image
+                  src="/duck.jpg"
+                  alt="a baby duck mid-walk"
+                  width="80px"
+                  height="80px"
+                />
               </label>
             </div>
             <div>
@@ -282,7 +280,9 @@ export default function Registration(props) {
               />
               <label htmlFor="kitten" aria-labelledby="radio">
                 <Image
-                  src={kitten}
+                  src="/kitten.jpg"
+                  width="80px"
+                  height="80px"
                   alt="super cute kitten looking up at the viewer"
                 />
               </label>
@@ -298,7 +298,9 @@ export default function Registration(props) {
               />
               <label htmlFor="puppy" aria-labelledby="radio">
                 <Image
-                  src={puppy}
+                  src="/puppy.jpg"
+                  width="80px"
+                  height="80px"
                   alt="portrait of a puppy with a somewhat mischieveous twinkle in its eye"
                 />
               </label>

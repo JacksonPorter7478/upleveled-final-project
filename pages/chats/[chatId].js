@@ -35,11 +35,6 @@ const members = css`
     border-radius: 50%;
     overflow: hidden;
     margin: 10px;
-    img {
-      outline: 6px solid #fff001;
-      height: 100%;
-      width: 100%;
-    }
   }
 `;
 
@@ -187,7 +182,16 @@ export default function TestChat(props) {
                   className="buddies"
                 >
                   <div className="avatar">
-                    <img src={member.avatar} alt="" />
+                    <Image
+                      src={member.avatar}
+                      alt={
+                        member.avatar.length > 10
+                          ? 'gravatar profile picture'
+                          : `user avatar of a ${member.avatar.slice(1, -4)}`
+                      }
+                      width="30px"
+                      height="30px"
+                    />
                   </div>
                   <span>{member.name}</span>
                 </div>

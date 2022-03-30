@@ -18,10 +18,6 @@ const avatar = css`
   overflow: hidden;
   margin: 10px;
   text-align: center;
-  img {
-    height: 100%;
-    width: 100%;
-  }
 `;
 
 const activity = css`
@@ -88,9 +84,15 @@ export default function User(props) {
           />
         </h1>
         <div css={avatar}>
-          <img
+          <Image
+            width="100px"
+            height="100px"
             src={props.currentUser.avatar}
-            alt={`user avatar of a ${props.currentUser.avatar.slice(1, -4)}`}
+            alt={
+              props.currentUser.avatar.length > 10
+                ? 'gravatar profile picture'
+                : `user avatar of a ${props.currentUser.avatar.slice(1, -4)}`
+            }
           />
         </div>
         <p>

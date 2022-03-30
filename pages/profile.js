@@ -5,9 +5,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import Header from '../components/Header';
-import duck from '../public/duck.jpg';
-import kitten from '../public/kitten.jpg';
-import puppy from '../public/puppy.jpg';
 import {
   getActivities,
   getActivitiesByUserId,
@@ -57,9 +54,6 @@ const formStyles = css`
       outline: 6px solid #05396b;
       overflow: hidden;
       margin: 15px;
-      Image {
-        height: 100%;
-      }
     }
     input {
       opacity: 0;
@@ -227,7 +221,12 @@ export default function Registration(props) {
                 }}
               />
               <label htmlFor="duck" aria-labelledby="radio">
-                <Image src={duck} alt="a baby duck mid-walk" />
+                <Image
+                  src="/duck.jpg"
+                  alt="a baby duck mid-walk"
+                  width="80px"
+                  height="80px"
+                />
               </label>
             </div>
             <div>
@@ -241,8 +240,28 @@ export default function Registration(props) {
               />
               <label htmlFor="kitten" aria-labelledby="radio">
                 <Image
-                  src={kitten}
+                  width="80px"
+                  height="80px"
+                  src="/kitten.jpg"
                   alt="super cute kitten looking up at the viewer"
+                />
+              </label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                name="avatar"
+                id="puppy"
+                onChange={() => {
+                  setAvatar('/puppy.jpg');
+                }}
+              />
+              <label htmlFor="puppy" aria-labelledby="radio">
+                <Image
+                  src="/puppy.jpg"
+                  width="80px"
+                  height="80px"
+                  alt="portrait of a puppy with a somewhat mischieveous twinkle in its eye"
                 />
               </label>
             </div>
@@ -257,22 +276,6 @@ export default function Registration(props) {
               />
               <label htmlFor="gravatar" aria-labelledby="radio">
                 <img src={gravatar} alt="your gravatar profile" />
-              </label>
-            </div>
-            <div>
-              <input
-                type="radio"
-                name="avatar"
-                id="puppy"
-                onChange={() => {
-                  setAvatar('/puppy.jpg');
-                }}
-              />
-              <label htmlFor="puppy" aria-labelledby="radio">
-                <Image
-                  src={puppy}
-                  alt="portrait of a puppy with a somewhat mischieveous twinkle in its eye"
-                />
               </label>
             </div>
           </div>

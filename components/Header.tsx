@@ -66,10 +66,6 @@ const headerStyles = css`
     outline: 2px solid #545659;
     overflow: hidden;
     transform: translateY(10px);
-    img {
-      height: 100%;
-      width: 100%;
-    }
   }
 `;
 
@@ -122,7 +118,9 @@ export default function Header(props: Props) {
             <a>
               {props.user.name}
               <div className="avatar">
-                <img
+                <Image
+                  width="30px"
+                  height="30px"
                   src={props.user.avatar}
                   alt={
                     props.user.avatar.length > 10
