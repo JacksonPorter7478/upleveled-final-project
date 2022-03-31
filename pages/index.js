@@ -20,6 +20,18 @@ const homeStyles = css`
   .bgPhotoS {
     opacity: 0.6;
     height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-bottom: 6px solid;
+    border-image-slice: 1;
+    border-image-source: linear-gradient(
+      to right,
+      #05396b,
+      #389583,
+      #8de4af,
+      #bff0d1
+    );
     @media screen and (min-width: 600px) {
       opacity: 0;
       height: 0;
@@ -28,6 +40,18 @@ const homeStyles = css`
   .bgPhotoM {
     opacity: 0.6;
     height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-bottom: 6px solid;
+    border-image-slice: 1;
+    border-image-source: linear-gradient(
+      to right,
+      #05396b,
+      #389583,
+      #8de4af,
+      #bff0d1
+    );
     @media screen and (max-width: 600px) {
       opacity: 0;
       height: 0;
@@ -40,6 +64,18 @@ const homeStyles = css`
   .bgPhotoL {
     opacity: 0.6;
     height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-bottom: 6px solid;
+    border-image-slice: 1;
+    border-image-source: linear-gradient(
+      to right,
+      #05396b,
+      #389583,
+      #8de4af,
+      #bff0d1
+    );
     @media screen and (max-width: 1100px) {
       opacity: 0;
       height: 0;
@@ -50,7 +86,8 @@ const homeStyles = css`
     width: 100vw;
     position: relative;
     align-items: center;
-    gap: 290px;
+    gap: 250px;
+
     .top {
       align-items: center;
       margin-top: 100px;
@@ -65,7 +102,8 @@ const homeStyles = css`
       background-color: #ffffff4d;
       border-radius: 4px;
       padding: 8px;
-      margin-bottom: 60px;
+      margin-bottom: 80px;
+
       h2,
       p {
         margin: 0;
@@ -76,6 +114,60 @@ const homeStyles = css`
         margin: 25px;
       }
     }
+  }
+`;
+
+const sectionTwo = css`
+  width: 100vw;
+  max-height: fit-content;
+  display: grid;
+  place-items: center;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-top: 6px solid;
+  border-image-slice: 1;
+  border-image-source: linear-gradient(
+    to right,
+    #05396b,
+    #389583,
+    #8de4af,
+    #bff0d1
+  );
+  img {
+    width: 100%;
+    opacity: 0.7;
+    grid-row: 1 / span 3;
+    grid-column: 1 / span 3;
+  }
+  .imgS {
+    @media screen and (min-width: 600px) {
+      opacity: 0;
+      height: 0;
+    }
+  }
+  .imgM {
+    @media screen and (max-width: 600px) {
+      opacity: 0;
+      height: 0;
+    }
+    @media screen and (min-width: 1100px) {
+      opacity: 0;
+      height: 0;
+    }
+  }
+  .imgL {
+    @media screen and (max-width: 1100px) {
+      opacity: 0;
+      height: 0;
+    }
+  }
+  .buttonStyles {
+    text-decoration: none;
+    z-index: 2;
+    background-color: #ffffff4d;
+    width: max-content;
+    grid-row: 2 / span 1;
+    grid-column: 2 / span 1;
   }
 `;
 
@@ -91,9 +183,21 @@ export default function Dashboard() {
       </Head>
       <div css={homeStyles} className="pageWrap">
         <div className="imgWrap">
-          <img className="bgPhotoS" src="/picknick.jpg" alt="" />
-          <img className="bgPhotoM" src="/picknickM.jpg" alt="" />
-          <img className="bgPhotoL" src="/picknickL.jpg" alt="" />
+          <img
+            className="bgPhotoS"
+            src="/picknick.jpg"
+            alt="background of friends having a picknick"
+          />
+          <img
+            className="bgPhotoM"
+            src="/picknickM.jpg"
+            alt="background of friends having a picknick"
+          />
+          <img
+            className="bgPhotoL"
+            src="/picknickL.jpg"
+            alt="background of friends having a picknick"
+          />
         </div>
         <div className="text flexColumn">
           <div className="top flexColumn">
@@ -121,9 +225,26 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      <Link href="/about">
-        <a>About Buddies</a>
-      </Link>
+      <div css={sectionTwo}>
+        <img
+          className="imgS"
+          src="/sunsetS.jpg"
+          alt="people sitting on a mountain, looking down at a lake in the sunset"
+        />
+        <img
+          className="imgM"
+          src="/sunsetM.jpg"
+          alt="people sitting on a mountain, looking down at a lake in the sunset"
+        />
+        <img
+          className="imgL"
+          src="/sunsetL.jpg"
+          alt="people sitting on a mountain, looking down at a lake in the sunset"
+        />
+        <Link href="/about">
+          <a className="buttonStyles">About Buddies</a>
+        </Link>
+      </div>
     </>
   );
 }
