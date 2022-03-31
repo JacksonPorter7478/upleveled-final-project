@@ -1,34 +1,22 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Buddies - Chat Platform
 
-## Getting Started
+> Next.js Progressive Web App
 
-First, run the development server:
+This final project for my Web Development Bootcamp was built with Next.js and mobile-first. I used GraphQL for the API routes and PostgreSQL for the database. It includes user authentication and authorization.
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+![landing page](/public/frontscreen.png)
+![login page](/public/login.png)
+![dashboard and menu](/public/menu.png)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Users register with their e-mail address, choose a profile picture, and have to select a number of pre-defined activities they enjoy. Based on their choices they will be matched with other users with similar interests. They can then start group chats (max. 6 people) with their matches.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+## Technologies
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Next.js
+- JavaScript/TypeScript,
+- HTML
+- Emotion for CSS
+- PostgreSQL
+- Apollo GraphQL (server and client)
+- [Ably](https://ably.com/) for the chats
+- Deployment on Heroku
