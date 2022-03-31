@@ -155,6 +155,16 @@ export default function About(props) {
           </a>
         </p>
         <p>
+          Sunset photo by{' '}
+          <a href="https://unsplash.com/@barchpou?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">
+            Arthur Poulin
+          </a>{' '}
+          on{' '}
+          <a href="https://unsplash.com/s/photos/hiking-friends?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">
+            Unsplash
+          </a>
+        </p>
+        <p>
           Paper airplane{' '}
           <a href="https://www.flaticon.com/free-icons/mail" title="mail icons">
             Mail icons created by Freepik - Flaticon
