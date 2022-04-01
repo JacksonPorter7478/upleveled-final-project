@@ -5,9 +5,10 @@ module.exports = [
     options: {
       cacheName: 'users',
       expiration: {
-        // maxEntries: 4,
-        maxAgeSeconds: 30, // 60 seconds
+        maxAgeSeconds: 30, // 30 seconds
       },
     },
   },
 ];
+
+// https://github.com/shadowwalker/next-pwa/issues/304
