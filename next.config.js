@@ -6,7 +6,7 @@ const nextConfig = {
 module.exports = nextConfig;
 
 const withPWA = require('next-pwa');
-const runtimeCaching = require('next-pwa/cache');
+const runtimeCaching = require('./config/cache');
 
 module.exports = withPWA({
   pwa: {
