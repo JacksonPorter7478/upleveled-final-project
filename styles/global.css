@@ -21,6 +21,7 @@ a {
   margin-top: 50px;
 }
 
+/* this is used in Layout and applies to every page */
 .pageStyles {
   margin: 6vw;
   margin-top: 8vh;
@@ -56,6 +57,8 @@ textarea {
   border-radius: 4px;
   border: 2px solid #ebebeb;
 }
+
+/* not sure this works */
 input:focus,
 textarea:focus {
   border: 2px solid #05396b;
