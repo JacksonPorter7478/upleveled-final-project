@@ -92,11 +92,15 @@ export default function Header(props: Props) {
   return (
     <div css={headerStyles}>
       <div className="nav">
-        <button onClick={() => setMenu(menu === 'closed' ? 'open' : 'closed')}>
+        <button
+          onClick={() => setMenu(menu === 'closed' ? 'open' : 'closed')}
+          aria-label="open menu"
+        >
           <Image
             src={menu === 'closed' ? '/menuIcon.png' : '/closeMenuIcon.png'}
             width="25px"
             height="25px"
+            alt=""
           />
         </button>
         <div className={`menu ${menu}`}>
