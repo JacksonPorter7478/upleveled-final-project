@@ -94,13 +94,17 @@ const h1 = css`
 `;
 
 export default function TestChat(props) {
+  // this is asks 'are you sure you want to delete/leave the chat?'
   const [popup, setPopup] = useState('closed');
+  // custom error message
   const [errorInfo, setErrorInfo] = useState('');
   const router = useRouter();
+  // MUTATIONS
   const [deleteUserFromChat] = useMutation(chatUserDeleteMutation);
   const [deleteChatFromDb] = useMutation(deleteChatMutation);
 
   async function leaveChat() {
+    // delete the current user from the chat_users table, so they are no longer part of this chat, then redirect
     try {
       await deleteUserFromChat({
         variables: { userId: props.currentUser.id, chatId: props.chat.id },
@@ -112,6 +116,7 @@ export default function TestChat(props) {
   }
 
   async function deleteChat() {
+    // delete the entire chat and all its messages from the database, then redirect
     try {
       await deleteChatFromDb({
         variables: {
@@ -137,6 +142,7 @@ export default function TestChat(props) {
         <div className="responsive">
           <Header user={props.currentUser} />
           {errorInfo && <p>{errorInfo}</p>}
+          {/* if the current user is the one who created the chat, they can delete it, otherwise just leave it */}
           {props.currentUser.id === props.chat.userId ? (
             <div css={top}>
               <div className={`popup ${popup}`}>
@@ -172,6 +178,7 @@ export default function TestChat(props) {
               alt="the buddies logo: a paper airplane"
             />
           </h1>
+          {/* list the people in this chat with the current user */}
           <div css={members}>
             Buddies in this chat:
             <br />
@@ -199,6 +206,7 @@ export default function TestChat(props) {
             })}
             <br />
           </div>
+          {/* this is the actual chat component, pass the chatId, all its messages and current user to it */}
           <AblyChatComponent
             chatId={props.chat.id}
             chatHistory={props.chatHistory}

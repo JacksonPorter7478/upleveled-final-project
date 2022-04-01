@@ -133,6 +133,7 @@ export default function User(props) {
               </Link>{' '}
             </p>
           )}
+          {/* list all the chats they are a part of by chat name and list the names of all chat members*/}
           {props.chats.map((chat) => {
             return (
               <div key={`user-${props.currentUser.id}-userChats-${chat.id}`}>
