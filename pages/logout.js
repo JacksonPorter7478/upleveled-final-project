@@ -1,6 +1,8 @@
 import { serialize } from 'cookie';
 import { deleteByToken } from '../util/database';
 
+// page shouldn't show - user is redirected
+
 export default function Logout() {
   return <>you are now logged out</>;
 }

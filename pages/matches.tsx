@@ -14,7 +14,7 @@ import {
 import matchUsers from '../util/match';
 import { chatUserMutation, createChatMutation } from './api/client';
 
-const userStyles = (grayScale: number, checked: number) => css`
+const userStyles = (opacity: number, checked: number) => css`
   width: 100%;
   @media screen and (min-width: 900px) {
     width: 60%;
@@ -25,7 +25,7 @@ const userStyles = (grayScale: number, checked: number) => css`
   padding: 0 20px 20px;
   margin-bottom: 25px;
   line-height: 1.3;
-  opacity: ${grayScale};
+  opacity: ${opacity};
   opacity: ${checked};
 
   .invisible {
@@ -127,27 +127,28 @@ type Props = {
 };
 
 export default function Matches(props: Props) {
-  const [error, setError] = useState('');
+  // custom error message
+  const [errorInfo, setErrorInfo] = useState('');
   const [chatName, setChatName] = useState('');
   const [chatMembers, setChatMembers] = useState<
     { userId: number; name: string }[] | []
   >([]);
-  const [checked, setChecked] = useState<{ id: number }[] | []>([]);
-  const [divVisibility, setDivVisibility] = useState('invisible');
+  const [chatOptionsVisible, setChatOptionsVisible] = useState('invisible');
+  const router = useRouter();
+  // MUTATIONS
   const [openChat] = useMutation(createChatMutation);
   const [addMember] = useMutation(chatUserMutation);
-  const router = useRouter();
 
   async function openNewChat() {
+    // make sure the chat is given a name and at least one user is selected
     if (!chatName) {
-      return setError('Please give your new chat a name');
+      return setErrorInfo('Please give your new chat a name');
     }
     if (chatMembers.length === 0 || chatMembers.length > 5) {
-      return setError(
+      return setErrorInfo(
         'Please select between one and five buddies to chat with',
       );
     }
-    setError('');
     // create a new chat
     const chat = await openChat({ variables: { name: chatName } });
     // add the selected users to the chat
@@ -160,9 +161,7 @@ export default function Matches(props: Props) {
       });
     }
     // redirect to chat
-    router
-      .push(`/chats/${chat.data.createNewChat.id}`)
-      .catch((err) => console.log(err));
+    await router.push(`/chats/${chat.data.createNewChat.id}`);
   }
 
   return (
@@ -184,22 +183,30 @@ export default function Matches(props: Props) {
           alt="the buddies logo: a paper airplane"
         />
       </h1>
-      <button
-        css={openChatStyles}
-        className="buttonStyles"
-        onClick={() => {
-          setDivVisibility(
-            divVisibility === 'visible' ? 'invisible' : 'visible',
-          );
-        }}
-      >
-        {divVisibility === 'invisible'
-          ? 'Start a new group'
-          : 'Hide chat options'}
-      </button>
+      {props.matchesList.length === 0 ? (
+        "You don't have any matches yet. Tell more people about this app, and maybe try selecting more activities in your profile!"
+      ) : (
+        // onClick the button shows(or hides) a chatName input field and all users are given some transparency (until they are selected)
+        <button
+          css={openChatStyles}
+          className="buttonStyles"
+          onClick={() => {
+            setChatOptionsVisible(
+              chatOptionsVisible === 'visible' ? 'invisible' : 'visible',
+            );
+            // clear the error info
+            setErrorInfo('');
+          }}
+        >
+          {chatOptionsVisible === 'invisible'
+            ? 'Start a new group'
+            : 'Hide chat options'}
+        </button>
+      )}
       <div css={startChatDiv}>
-        <div className={`${divVisibility} flexColumn`}>
-          {error && <p>{error}</p>}
+        <div className={`${chatOptionsVisible} flexColumn`}>
+          {/* error if no chatName given */}
+          {errorInfo && <p>{errorInfo}</p>}
           <label>
             1. Give your chat a name:
             <br />
@@ -212,6 +219,7 @@ export default function Matches(props: Props) {
           <p>
             2. Select up to 5 people for this chat:
             <br />
+            {/* list users selected for the new chat */}
             {chatMembers.map((member) => {
               return (
                 <span key={`invite-${member.userId}-to-chat`}>
@@ -221,6 +229,7 @@ export default function Matches(props: Props) {
               );
             })}
           </p>
+          {/* the openChat button shows up when at least one user is selected */}
           {chatMembers.length > 0 && (
             <button onClick={() => openNewChat()} className="buttonStyles">
               Open chat
@@ -228,33 +237,32 @@ export default function Matches(props: Props) {
           )}
         </div>
       </div>
+      {/* list all matches */}
       {props.matchesList.map((m) => {
         return (
           <label
             key={`dashboard-users-${m.matchInfo.id}`}
+            // parameter 1: are all matches partly transparent or opaque?
+            // parameter 2: when all matches are partly transparent: matches that are selected for the chat should switch back to opaque
             css={userStyles(
-              divVisibility === 'invisible' ? 1 : 0.5,
-              divVisibility === 'invisible'
+              chatOptionsVisible === 'invisible' ? 1 : 0.5,
+              chatOptionsVisible === 'invisible'
                 ? 1
-                : checked.some((item) => item.id === m.matchInfo.id)
+                : chatMembers.some((item) => item.userId === m.matchInfo.id)
                 ? 1
                 : 0.5,
             )}
           >
             <div>
+              {/* when chatOptions are visible, make each match selectable (add to chatMembers) and change the css */}
               <input
-                className={divVisibility}
+                className={chatOptionsVisible}
                 type="checkbox"
-                disabled={divVisibility === 'invisible'}
-                checked={checked.some((item) => item.id === m.matchInfo.id)}
+                disabled={chatOptionsVisible === 'invisible'}
+                checked={chatMembers.some(
+                  (item) => item.userId === m.matchInfo.id,
+                )}
                 onChange={(event) => {
-                  setChecked(
-                    event.currentTarget.checked
-                      ? [...checked, { id: m.matchInfo.id }]
-                      : checked.filter((item) => {
-                          return item.id !== m.matchInfo.id;
-                        }),
-                  );
                   setChatMembers(
                     event.currentTarget.checked
                       ? [
@@ -267,6 +275,7 @@ export default function Matches(props: Props) {
                   );
                 }}
               />
+              {/* list match name, avatar, bio, activities */}
               <div>
                 <div className="name">
                   <h2>{m.matchInfo.name}</h2>
@@ -315,7 +324,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   if (currentUser) {
     const matches = await matchUsers(currentUser.id);
 
-    // for each match, i want an object in the array: { matchInfo: {id: , name: , bio: }, matchActivities: [title: ]}
+    // for each match, i want an object in the array: { matchInfo: {id: , name: , bio: , avatar: }, matchActivities: [title: ] }
     let matchesList: MatchesList[] | [] = [];
 
     for (const match of matches) {
@@ -324,9 +333,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         match,
       );
 
-      const matchingUser = { matchInfo, matchActivities };
-
-      matchesList = [...matchesList, matchingUser];
+      matchesList = [...matchesList, { matchInfo, matchActivities }];
     }
 
     return {

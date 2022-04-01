@@ -109,31 +109,38 @@ const deleteStyles = css`
 `;
 
 export default function Registration(props) {
+  // use custom error messages
   const [error, setError] = useState('');
+  // error if less than 4 activities are selected
+  const [activityInputError, setActivityInputError] = useState('');
   const [name, setName] = useState(props.currentUser.name);
   const [avatar, setAvatar] = useState(props.currentUser.avatar);
   const [bio, setBio] = useState(props.currentUser.bio);
-  const [activityInputError, setActivityInputError] = useState('');
   const [activities, setActivities] = useState(props.chosenActivities);
   const [checked, setChecked] = useState(
     props.dbActivities.map((a) => {
       return { id: a.id, checked: activities.some((b) => b.id === a.id) };
     }),
   );
+  const router = useRouter();
+  // MUTATIONS
   const [deleteAccount] = useMutation(deleteMutation);
   const [deleteActivities] = useMutation(deleteUserActivities);
   const [updateActivities] = useMutation(addActivity);
   const [updateUser] = useMutation(updateMutation);
-  const router = useRouter();
-  const md5 = require('md5');
+
   const id = props.currentUser.id;
+  // md5 hash for the gravatar image
+  const md5 = require('md5');
   const gravatar = `https://www.gravatar.com/avatar/${md5(
     props.currentUser.email.toLowerCase(),
   )}`;
 
   async function submitUserUpdate(event) {
     event.preventDefault();
+    // clear the error message
     setActivityInputError('');
+    // set error message if necessary
     if (activities.length < 4) {
       setActivityInputError('Please choose at least 4 activities');
       return;
@@ -150,7 +157,7 @@ export default function Registration(props) {
           },
         });
       }
-      // update name, bio
+      // update name, bio, avatar
       await updateUser({
         variables: {
           id: id,
@@ -169,7 +176,7 @@ export default function Registration(props) {
   async function deleteUserAccount() {
     try {
       await deleteAccount({ variables: { id: id } });
-      router.push('/goodbye').catch((err) => console.log(err));
+      await router.push('/goodbye');
     } catch (err) {
       setError('Something went wrong. Please try again later!');
     }
@@ -204,6 +211,7 @@ export default function Registration(props) {
           <label>
             <h2>Name</h2>
             <input
+              required
               value={name}
               onChange={(event) => setName(event.currentTarget.value)}
             />
@@ -289,12 +297,14 @@ export default function Registration(props) {
               minLength="50"
               maxLength="300"
               value={bio}
+              required
               onChange={(event) => setBio(event.currentTarget.value)}
             />
           </label>
           <div css={checkboxStyles}>
             <h3>Your Categories</h3>
             <p>Please choose at least 4</p>
+            {/* map over all activities from the database */}
             {props.dbActivities.map((a) => {
               return (
                 <div key={`register-activity-${a.id}`}>

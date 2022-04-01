@@ -45,8 +45,10 @@ const formStyles = css`
 export default function Login(props: { csrfToken: string }) {
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
+  // for custom error messages
   const [errorInfo, setErrorInfo] = useState('');
   const router = useRouter();
+  // MUTATION
   const [getLoggedInUser, { loading, error }] = useMutation(loggedIn);
 
   async function loginHandler(event: React.FormEvent) {
@@ -65,7 +67,7 @@ export default function Login(props: { csrfToken: string }) {
       // redirect to their logged in page
       await router.push(`/users/${userId.data.logUserIn.id}`);
     } catch (err) {
-      console.log('Error logging in');
+      setErrorInfo('Error logging in. Try again later.');
     }
   }
 
@@ -111,7 +113,9 @@ export default function Login(props: { csrfToken: string }) {
           alt="the buddies logo: a paper airplane"
         />
       </h1>
+      {/* if the mutation throws an error */}
       {error && <h2>Sorry, there has been an error. Try again later!</h2>}
+      {/* custom error message */}
       {errorInfo && <h2>{errorInfo}</h2>}
       <form
         css={formStyles}

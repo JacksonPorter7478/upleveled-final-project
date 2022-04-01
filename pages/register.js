@@ -9,8 +9,6 @@ import { createCsrfToken } from '../util/auth';
 import { getActivities, getSessionByToken } from '../util/database';
 import { addActivity, createMutation } from './api/client';
 
-const md5 = require('md5');
-
 const header = css`
   display: flex;
   width: 100vw;
@@ -125,12 +123,16 @@ export default function Registration(props) {
       return { id: a.id, checked: false };
     }),
   );
+  // custom error messages
   const [errorInfo, setErrorInfo] = useState('');
+  const [activityInputError, setActivityInputError] = useState('');
   const router = useRouter();
+  // MUTATIONS
   const [createNewUser, { loading, error }] = useMutation(createMutation);
   const [addToUser] = useMutation(addActivity);
-  const [activityInputError, setActivityInputError] = useState('');
 
+  // gravatar profile photo
+  const md5 = require('md5');
   const gravatar = `https://www.gravatar.com/avatar/${md5(
     email.toLowerCase(),
   )}`;
@@ -160,7 +162,7 @@ export default function Registration(props) {
         setErrorInfo(user.data.createUser.error);
         return;
       }
-      // send the user's activities to the db
+      // send the user's activities to the database
       for (const activity of activities) {
         await addToUser({
           variables: {
@@ -334,6 +336,7 @@ export default function Registration(props) {
           <div css={checkboxStyles}>
             <h3>Your Categories</h3>
             <p>Please choose at least 4</p>
+            {/* list all activities */}
             {props.activities.map((a) => {
               return (
                 <div key={`register-activity-${a.id}`}>

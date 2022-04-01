@@ -3,6 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getFullUserByToken } from '../util/database';
 
+// this page renders after someone deletes their profile
+
 export default function Goodbye() {
   return (
     <>
