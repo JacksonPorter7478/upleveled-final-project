@@ -58,6 +58,7 @@ const credit = css`
   width: 100%;
   max-width: 650px;
   text-align: left;
+  margin-bottom: -5vw;
   p {
     line-height: 1.3;
     margin: 0;

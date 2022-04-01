@@ -4,6 +4,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getSessionByToken } from '../util/database';
 
+const noMargin = css`
+  margin-bottom: -6vw;
+`;
+
 const homeStyles = css`
   .pageWrap {
     overflow: hidden;
@@ -117,6 +121,12 @@ const homeStyles = css`
   }
 `;
 
+const divide = css`
+  height: 150px;
+  padding: 50px;
+  text-align: center;
+`;
+
 const sectionTwo = css`
   width: 100vw;
   max-height: fit-content;
@@ -173,7 +183,7 @@ const sectionTwo = css`
 
 export default function Dashboard() {
   return (
-    <>
+    <div css={noMargin}>
       <Head>
         <title>Buddies - find your people</title>
         <meta
@@ -225,6 +235,9 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      <div css={divide}>
+        <Image src="/paperIcon.png" height="50px" width="50px" alt="" />
+      </div>
       <div css={sectionTwo}>
         <img
           className="imgS"
@@ -245,7 +258,7 @@ export default function Dashboard() {
           <a className="buttonStyles">About Buddies</a>
         </Link>
       </div>
-    </>
+    </div>
   );
 }
 
