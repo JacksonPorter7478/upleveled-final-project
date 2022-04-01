@@ -38,3 +38,7 @@ yarn-error.log*
 .eslintcache
 *.tsbuildinfo
 *.tsbuildinfo
+
+#pwa
+/public/sw.js
+/public/workbox-5afaf374.js

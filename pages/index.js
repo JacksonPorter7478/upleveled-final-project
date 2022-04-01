@@ -185,18 +185,18 @@ export default function Dashboard() {
         <div className="imgWrap">
           <img
             className="bgPhotoS"
-            src="/picknick.jpg"
-            alt="background of friends having a picknick"
+            src="/sunsetS.jpg"
+            alt="people sitting on a mountain, looking down at a lake in the sunset"
           />
           <img
             className="bgPhotoM"
-            src="/picknickM.jpg"
-            alt="background of friends having a picknick"
+            src="/sunsetM.jpg"
+            alt="people sitting on a mountain, looking down at a lake in the sunset"
           />
           <img
             className="bgPhotoL"
-            src="/picknickL.jpg"
-            alt="background of friends having a picknick"
+            src="/sunsetL.jpg"
+            alt="people sitting on a mountain, looking down at a lake in the sunset"
           />
         </div>
         <div className="text flexColumn">
@@ -228,18 +228,18 @@ export default function Dashboard() {
       <div css={sectionTwo}>
         <img
           className="imgS"
-          src="/sunsetS.jpg"
-          alt="people sitting on a mountain, looking down at a lake in the sunset"
+          src="/picknick.jpg"
+          alt="background of friends having a picknick"
         />
         <img
           className="imgM"
-          src="/sunsetM.jpg"
-          alt="people sitting on a mountain, looking down at a lake in the sunset"
+          src="/picknickM.jpg"
+          alt="background of friends having a picknick"
         />
         <img
           className="imgL"
-          src="/sunsetL.jpg"
-          alt="people sitting on a mountain, looking down at a lake in the sunset"
+          src="/picknickL.jpg"
+          alt="background of friends having a picknick"
         />
         <Link href="/about">
           <a className="buttonStyles">About Buddies</a>
