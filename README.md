@@ -4,10 +4,6 @@
 
 This final project for my Web Development Bootcamp was built with Next.js and mobile-first. I used GraphQL for the API routes and PostgreSQL for the database. It includes user authentication and authorization.
 
-![landing page](/public/frontscreen.png)
-![login page](/public/login.png)
-![dashboard and menu](/public/menu.png)
-
 Users register with their e-mail address, choose a profile picture, and have to select a number of pre-defined activities they enjoy. Based on their choices they will be matched with other users with similar interests. They can then start group chats (max. 6 people) with their matches.
 
 ## Technologies
