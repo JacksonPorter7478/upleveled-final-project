@@ -13,8 +13,7 @@ module.exports = withPWA({
     dest: 'public',
     runtimeCaching,
     disable: process.env.NODE_ENV === 'development',
-    cacheOnFrontEndNav: true,
-    register: true,
-    skipWaiting: true,
+    // register: true,
+    // skipWaiting: true,
   },
 });
