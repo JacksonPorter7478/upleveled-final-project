@@ -78,20 +78,18 @@ const top = css`
     overflow: hidden;
   }
   .popup.open {
+    z-index: 1;
     width: 75vw;
+    max-width: 400px;
     height: min-content;
     padding: 20px;
     position: absolute;
-    top: 50vh;
-    left: 7vw;
+    top: 20vh;
+    left: 6.5vw;
     background-color: #ebebeb;
     border: 2px solid #05396b;
     border-radius: 4px;
     font-size: 24px;
-    @media screen and (min-width: 900px) {
-      width: 400px;
-      left: 10vw;
-    }
     div {
       margin-top: 15px;
       display: flex;
@@ -262,16 +260,22 @@ export default function TestChat(props) {
                   }
                 >
                   <option>----</option>
-                  {props.matches.map((match) => {
-                    return (
-                      <option
-                        key={`invite-${match.id}-to-${props.chat.id}`}
-                        value={match.id}
-                      >
-                        {match.name}
-                      </option>
-                    );
-                  })}
+                  {/* filter out the people who are already in the chat, return all other matches as an option */}
+                  {props.matches
+                    .filter(
+                      (match) =>
+                        !chatMembers.find((member) => member.id === match.id),
+                    )
+                    .map((match) => {
+                      return (
+                        <option
+                          key={`invite-${match.id}-to-${props.chat.id}`}
+                          value={match.id}
+                        >
+                          {match.name}
+                        </option>
+                      );
+                    })}
                 </select>
                 <button
                   className="addMember"
