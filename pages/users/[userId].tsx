@@ -12,13 +12,7 @@ import {
   getUserById,
 } from '../../util/database';
 import matchUsers from '../../util/match';
-import {
-  ChatMember,
-  Chats,
-  UserActivity,
-  UserActivityArgs,
-  UserInfo,
-} from '../../util/types';
+import { ChatMember, Chats, UserActivity, UserInfo } from '../../util/types';
 
 const avatar = css`
   width: 100px;
