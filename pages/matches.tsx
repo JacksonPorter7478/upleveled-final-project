@@ -280,7 +280,25 @@ export default function Matches(props: Props) {
                 <div className="name">
                   <h2>{m.matchInfo.name}</h2>
                   <div className="avatar">
-                    <Image
+                    {m.matchInfo.avatar.length > 10 ? (
+                      <img
+                        width="80px"
+                        height="80px"
+                        src={m.matchInfo.avatar}
+                        alt="gravatar profile"
+                      />
+                    ) : (
+                      <Image
+                        width="80px"
+                        height="80px"
+                        src={m.matchInfo.avatar}
+                        alt={`user avatar of a ${m.matchInfo.avatar.slice(
+                          1,
+                          -4,
+                        )}`}
+                      />
+                    )}
+                    {/* <Image
                       width="80px"
                       height="80px"
                       src={m.matchInfo.avatar}
@@ -292,7 +310,7 @@ export default function Matches(props: Props) {
                               -4,
                             )}`
                       }
-                    />
+                    /> */}
                   </div>
                 </div>
                 <p className="bio">{m.matchInfo.bio}</p>

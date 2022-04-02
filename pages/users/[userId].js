@@ -84,16 +84,21 @@ export default function User(props) {
           />
         </h1>
         <div css={avatar}>
-          <Image
-            width="100px"
-            height="100px"
-            src={props.currentUser.avatar}
-            alt={
-              props.currentUser.avatar.length > 10
-                ? 'gravatar profile picture'
-                : `user avatar of a ${props.currentUser.avatar.slice(1, -4)}`
-            }
-          />
+          {props.currentUser.avatar.length > 10 ? (
+            <img
+              width="100px"
+              height="100px"
+              src={props.currentUser.avatar}
+              alt="gravatar profile"
+            />
+          ) : (
+            <Image
+              width="100px"
+              height="100px"
+              src={props.currentUser.avatar}
+              alt={`user avatar of a ${props.currentUser.avatar.slice(1, -4)}`}
+            />
+          )}
         </div>
         <p>
           {props.currentUser.bio}{' '}

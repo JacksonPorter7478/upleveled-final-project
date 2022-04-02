@@ -189,16 +189,21 @@ export default function TestChat(props) {
                   className="buddies"
                 >
                   <div className="avatar">
-                    <Image
-                      src={member.avatar}
-                      alt={
-                        member.avatar.length > 10
-                          ? 'gravatar profile picture'
-                          : `user avatar of a ${member.avatar.slice(1, -4)}`
-                      }
-                      width="30px"
-                      height="30px"
-                    />
+                    {member.avatar.length > 10 ? (
+                      <img
+                        width="30px"
+                        height="30px"
+                        src={member.avatar}
+                        alt="gravatar profile"
+                      />
+                    ) : (
+                      <Image
+                        width="30px"
+                        height="30px"
+                        src={member.avatar}
+                        alt={`user avatar of a ${member.avatar.slice(1, -4)}`}
+                      />
+                    )}
                   </div>
                   <span>{member.name}</span>
                 </div>
