@@ -10,6 +10,7 @@ import {
   deleteUserFromChat,
   deleteUserFromDb,
   getChatById,
+  getChatMembersByChatId,
   getMessagesByChatId,
   getSessionByToken,
   getUserById,
@@ -32,6 +33,7 @@ import { typeDefs } from './schema';
 // Resolvers define the technique for fetching the types defined in the schema
 const resolvers = {
   Query: {
+    // only used in development in the apollo sandbox
     async users() {
       return await getUsers();
     },
@@ -51,8 +53,11 @@ const resolvers = {
       if ('error' in context) {
         return { error: context.error };
       }
-      // check here if the userId and chatId share a row in the join table
-
+      // check here if the current user is in this chat and allowed to see the messages
+      const chatMembers: UserInfo[] = await getChatMembersByChatId(args.chatId);
+      if (!chatMembers.some((member) => member.id === context.session.userId)) {
+        return { error: 'You are not in this chat!' };
+      }
       return await getMessagesByChatId(args.chatId);
     },
   },
@@ -82,8 +87,12 @@ const resolvers = {
       if ('error' in context) {
         return { error: context.error };
       }
+      // ensure they are authorized for this action
+      if (Number(args.id) !== Number(context.session.userId)) {
+        return { error: 'You are only allowed to edit your own profile' };
+      }
       return await updateUser(
-        Number(args.id),
+        Number(context.session.userId),
         args.name,
         args.avatar,
         args.bio,
@@ -94,7 +103,11 @@ const resolvers = {
       if ('error' in context) {
         return { error: context.error };
       }
-      const deletedUser = await deleteUserFromDb(args.id);
+      // ensure they are authorized for this action
+      if (Number(args.id) !== Number(context.session.userId)) {
+        return { error: 'You are only allowed to delete your own profile' };
+      }
+      const deletedUser = await deleteUserFromDb(context.session.userId);
       return { name: deletedUser };
     },
 
@@ -123,7 +136,14 @@ const resolvers = {
       if ('error' in context) {
         return { error: context.error };
       }
-      return await insertIntoUserActivities(args.userId, args.activityId);
+      // ensure they are authorized for this action
+      if (Number(args.userId) !== Number(context.session.userId)) {
+        return { error: 'You are only allowed to edit your own profile' };
+      }
+      return await insertIntoUserActivities(
+        context.session.userId,
+        args.activityId,
+      );
     },
 
     async deleteAllUserActivities(
@@ -133,6 +153,10 @@ const resolvers = {
     ) {
       if ('error' in context) {
         return { error: context.error };
+      }
+      // ensure they are authorized for this action
+      if (Number(args.userId) !== Number(context.session.userId)) {
+        return { error: 'You are only allowed to edit your own profile' };
       }
       return await deleteUserActivities(args.userId);
     },
@@ -157,6 +181,10 @@ const resolvers = {
         return { error: context.error };
       }
       // check if the current user is authorized to add someone to the chat
+      const chat = await getChatById(args.chatId);
+      if (chat.userId !== context.session.userId) {
+        return { error: 'You are not allowed to add members to this chat' };
+      }
       return await addUsersToChat(args.userId, args.chatId);
     },
 
@@ -177,7 +205,11 @@ const resolvers = {
       if ('error' in context) {
         return { error: context.error };
       }
-
+      // ensure only chatMembers can add messages
+      const chatMembers: UserInfo[] = await getChatMembersByChatId(args.chatId);
+      if (!chatMembers.some((member) => member.id === context.session.userId)) {
+        return { error: 'You are not in this chat!' };
+      }
       return await createMessage(
         context.session.userId,
         args.chatId,
