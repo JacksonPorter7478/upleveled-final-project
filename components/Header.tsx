@@ -125,16 +125,21 @@ export default function Header(props: Props) {
             <a>
               {props.user.name}
               <div className="avatar">
-                <Image
-                  width="30px"
-                  height="30px"
-                  src={props.user.avatar}
-                  alt={
-                    props.user.avatar.length > 10
-                      ? 'gravatar profile picture'
-                      : `user avatar of a ${props.user.avatar.slice(1, -4)}`
-                  }
-                />
+                {props.user.avatar.length > 10 ? (
+                  <img
+                    width="30px"
+                    height="30px"
+                    src={props.user.avatar}
+                    alt="gravatar profile"
+                  />
+                ) : (
+                  <Image
+                    width="30px"
+                    height="30px"
+                    src={props.user.avatar}
+                    alt={`user avatar of a ${props.user.avatar.slice(1, -4)}`}
+                  />
+                )}
               </div>
             </a>
           </Link>

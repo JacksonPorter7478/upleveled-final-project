@@ -10,6 +10,9 @@ const chatHolder = css`
   border: 2px solid #05396b;
   border-radius: 4px;
   height: 90vh;
+  @media screen and (min-width: 600px) {
+    height: 70vh;
+  }
   .chatText {
     display: flex;
     flex-direction: column;
@@ -59,6 +62,7 @@ const chatHolder = css`
     font-size: 18px;
     background-color: #bff0d1;
     padding: 0.7em;
+    margin-right: 20px;
     line-height: 1.5;
     border-radius: 10px;
     flex-grow: 0;
@@ -71,6 +75,8 @@ const chatHolder = css`
   p[data-author='me'] {
     background-color: #389583;
     color: white;
+    margin-left: 20px;
+    margin-right: 0;
     -webkit-align-self: flex-end;
     -ms-flex-item-align: end;
     align-self: flex-end;
