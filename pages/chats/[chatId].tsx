@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { css } from '@emotion/react';
+import { GetServerSidePropsContext } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Image from 'next/image';
@@ -14,6 +15,7 @@ import {
   getUserById,
 } from '../../util/database';
 import matchUsers from '../../util/match';
+import { Chat, ChatMember, Message, UserInfo } from '../../util/types';
 import {
   chatUserDeleteMutation,
   chatUserMutation,
@@ -107,8 +109,16 @@ const h1 = css`
   margin: 30px 0;
 `;
 
-export default function TestChat(props) {
-  const [newMemberId, setNewMemberId] = useState();
+type Props = {
+  currentUser: UserInfo;
+  matches: UserInfo[];
+  chat: Chat;
+  chatMembers: ChatMember[];
+  chatHistory: Message[];
+};
+
+export default function TestChat(props: Props) {
+  const [newMemberId, setNewMemberId] = useState<number>();
   const [chatMembers, setChatMembers] = useState(props.chatMembers);
   // this is asks 'are you sure you want to delete/leave the chat?'
   const [popup, setPopup] = useState('closed');
@@ -152,8 +162,7 @@ export default function TestChat(props) {
     }
   }
 
-  async function addNewChatMember(event) {
-    event.preventDefault();
+  async function addNewChatMember() {
     try {
       await addMember({
         variables: {
@@ -161,10 +170,13 @@ export default function TestChat(props) {
           chatId: props.chat.id,
         },
       });
-      setChatMembers([
-        ...chatMembers,
-        props.matches.find((match) => Number(match.id) === Number(newMemberId)),
-      ]);
+      const member = props.matches.find(
+        (match) => Number(match.id) === Number(newMemberId),
+      );
+      if (!member) {
+        return;
+      }
+      setChatMembers([...chatMembers, member]);
     } catch (err) {
       setErrorInfo('Oh no! There has been an issue. Please try again later.');
     }
@@ -179,134 +191,139 @@ export default function TestChat(props) {
           content="Buddies. The chat app to find your people in Vienna."
         />
       </Head>
-      {props.currentUser && (
-        <div className="responsive">
-          <Header user={props.currentUser} />
-          {errorInfo && <p>{errorInfo}</p>}
-          {/* if the current user is the one who created the chat, they can delete it, otherwise just leave it */}
-          {props.currentUser.id === props.chat.userId ? (
-            <div css={top}>
-              <div className={`popup ${popup}`}>
-                Are you sure you want to permanently delete this chat and all
-                the messages in it?
-                <div>
-                  <button onClick={() => deleteChat()}>Delete</button>
-                  <button onClick={() => setPopup('closed')}>Cancel</button>
-                </div>
+      <div className="responsive">
+        <Header user={props.currentUser} />
+        {errorInfo && <p>{errorInfo}</p>}
+        {/* if the current user is the one who created the chat, they can delete it, otherwise only leave it */}
+        {props.currentUser.id === props.chat.userId ? (
+          <div css={top}>
+            <div className={`popup ${popup}`}>
+              Are you sure you want to permanently delete this chat and all the
+              messages in it?
+              <div>
+                <button onClick={() => deleteChat()}>Delete</button>
+                <button onClick={() => setPopup('closed')}>Cancel</button>
               </div>
-              <button onClick={() => setPopup('open')}>Delete this chat</button>
             </div>
-          ) : (
-            <div css={top}>
-              <div className={`popup ${popup}`}>
-                Are you sure you want to leave this chat?
-                <div>
-                  <button onClick={() => leaveChat()}>Leave</button>
-                  <button onClick={() => setPopup('closed')}>Cancel</button>
-                </div>
-              </div>
-              <button onClick={() => setPopup('open')}>
-                Want to leave this chat?
-              </button>
-            </div>
-          )}
-          <h1 className="h1Font" css={h1}>
-            {props.chat.name}{' '}
-            <Image
-              src="/paperIcon.png"
-              width="40px"
-              height="40px"
-              alt="the buddies logo: a paper airplane"
-            />
-          </h1>
-          {/* list the people in this chat with the current user */}
-          <div css={members}>
-            Buddies in this chat:
-            <br />
-            {chatMembers.map((member) => {
-              return (
-                <div
-                  key={`chat-${props.chat.id}-user-${member.id}`}
-                  className="buddies"
-                >
-                  <div className="avatar">
-                    {member.avatar.length > 10 ? (
-                      <img
-                        width="30px"
-                        height="30px"
-                        src={member.avatar}
-                        alt="gravatar profile"
-                      />
-                    ) : (
-                      <Image
-                        width="30px"
-                        height="30px"
-                        src={member.avatar}
-                        alt={`user avatar of a ${member.avatar.slice(1, -4)}`}
-                      />
-                    )}
-                  </div>
-                  <span>{member.name}</span>
-                </div>
-              );
-            })}
-            <br />
-            {displayAddToChat && (
-              <form>
-                Invite someone else into the chat:{' '}
-                <select
-                  onChange={(event) =>
-                    setNewMemberId(event.currentTarget.value)
-                  }
-                >
-                  <option>----</option>
-                  {/* filter out the people who are already in the chat, return all other matches as an option */}
-                  {props.matches
-                    .filter(
-                      (match) =>
-                        !chatMembers.find((member) => member.id === match.id),
-                    )
-                    .map((match) => {
-                      return (
-                        <option
-                          key={`invite-${match.id}-to-${props.chat.id}`}
-                          value={match.id}
-                        >
-                          {match.name}
-                        </option>
-                      );
-                    })}
-                </select>
-                <button
-                  className="addMember"
-                  onClick={(event) => addNewChatMember(event)}
-                >
-                  Add
-                </button>
-              </form>
-            )}
+            <button onClick={() => setPopup('open')}>Delete this chat</button>
           </div>
-
-          {/* this is the actual chat component, pass the chatId, all its messages and current user to it */}
-          <AblyChatComponent
-            chatId={props.chat.id}
-            chatHistory={props.chatHistory}
-            user={props.currentUser}
+        ) : (
+          <div css={top}>
+            <div className={`popup ${popup}`}>
+              Are you sure you want to leave this chat?
+              <div>
+                <button onClick={() => leaveChat()}>Leave</button>
+                <button onClick={() => setPopup('closed')}>Cancel</button>
+              </div>
+            </div>
+            <button onClick={() => setPopup('open')}>
+              Want to leave this chat?
+            </button>
+          </div>
+        )}
+        <h1 className="h1Font" css={h1}>
+          {props.chat.name}{' '}
+          <Image
+            src="/paperIcon.png"
+            width="40px"
+            height="40px"
+            alt="the buddies logo: a paper airplane"
           />
+        </h1>
+        {/* list the people in this chat with the current user */}
+        <div css={members}>
+          Buddies in this chat:
+          <br />
+          {chatMembers.map((member) => {
+            return (
+              <div
+                key={`chat-${props.chat.id}-user-${member.id}`}
+                className="buddies"
+              >
+                <div className="avatar">
+                  {member.avatar.length > 10 ? (
+                    <img
+                      width="30px"
+                      height="30px"
+                      src={member.avatar}
+                      alt="gravatar profile"
+                    />
+                  ) : (
+                    <Image
+                      width="30px"
+                      height="30px"
+                      src={member.avatar}
+                      alt={`user avatar of a ${member.avatar.slice(1, -4)}`}
+                    />
+                  )}
+                </div>
+                <span>{member.name}</span>
+              </div>
+            );
+          })}
+          <br />
+          {displayAddToChat && (
+            <form>
+              Invite someone else into the chat:{' '}
+              <select
+                onChange={(event) =>
+                  setNewMemberId(Number(event.currentTarget.value))
+                }
+              >
+                <option>----</option>
+                {/* filter out the people who are already in the chat, return all other matches as an option */}
+                {props.matches
+                  .filter(
+                    (match) =>
+                      !chatMembers.find((member) => member.id === match.id),
+                  )
+                  .map((match) => {
+                    return (
+                      <option
+                        key={`invite-${match.id}-to-${props.chat.id}`}
+                        value={match.id}
+                      >
+                        {match.name}
+                      </option>
+                    );
+                  })}
+              </select>
+              <button
+                className="addMember"
+                onClick={(event) => {
+                  event.preventDefault();
+                  addNewChatMember().catch(() =>
+                    setErrorInfo(
+                      'Oh no! There has been an issue. Please try again later.',
+                    ),
+                  );
+                }}
+              >
+                Add
+              </button>
+            </form>
+          )}
         </div>
-      )}
+
+        {/* this is the actual chat component, pass the chatId, all its messages and current user to it */}
+        <AblyChatComponent
+          chatId={props.chat.id}
+          chatHistory={props.chatHistory}
+          user={props.currentUser}
+        />
+      </div>
     </>
   );
 }
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   // check if there is already a valid token in the cookie
   const token = context.req.cookies.sessionToken;
   // get the user by token
-  const currentUser = await getFullUserByToken(token);
+  const currentUser: UserInfo | undefined = await getFullUserByToken(token);
   if (currentUser) {
     // get the chat via the id from the url
-    const chat = await getChatById(context.query.chatId);
+    const chat: Chat | undefined = await getChatById(context.query.chatId);
     if (!chat) {
       return {
         redirect: {
@@ -316,7 +333,7 @@ export async function getServerSideProps(context) {
       };
     }
     // get all chat members
-    const chatMembers = await getChatMembersByChatId(chat.id);
+    const chatMembers: ChatMember[] = await getChatMembersByChatId(chat.id);
     // if the current user isn't in this chat, send them to another page
     if (!chatMembers.some((member) => member.id === currentUser.id)) {
       return {
@@ -326,13 +343,14 @@ export async function getServerSideProps(context) {
         },
       };
     }
+
     // get all chat messages
-    const chatHistory = await getMessagesByChatId(chat.id);
+    const chatHistory: Message[] = await getMessagesByChatId(chat.id);
     // get the current user's matches
     const matchIds = await matchUsers(currentUser.id);
-    let matches = [];
+    let matches: UserInfo[] | [] = [];
     for (const matchId of matchIds) {
-      const match = await getUserById(matchId);
+      const match: UserInfo = await getUserById(matchId);
       matches = [...matches, match];
     }
     // if there is a logged in user who is part of this chat

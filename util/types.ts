@@ -39,12 +39,26 @@ export type UserActivityArgs = {
 
 export type Chats = { id: number; name: string }[];
 
+export type Chat = {
+  id: number;
+  name: string;
+  userId: number;
+};
+
 export type ChatUser = {
   userId: number;
   chatId: number;
 };
 
 export type ChatMessage = {
+  chatId: number;
+  content: string;
+  name: string;
+};
+
+export type Message = {
+  id: number;
+  userId: number;
   chatId: number;
   content: string;
   name: string;
