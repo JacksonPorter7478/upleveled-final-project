@@ -4,6 +4,7 @@ import { GetServerSidePropsContext } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import Header from '../../components/Header';
@@ -48,6 +49,7 @@ const members = css`
   .addMember {
     background-color: transparent;
     border-radius: 4px;
+    border: 2px solid #ebebeb;
     margin-left: 5px;
     :hover,
     :focus {
@@ -236,29 +238,33 @@ export default function TestChat(props: Props) {
           <br />
           {chatMembers.map((member) => {
             return (
-              <div
+              <Link
+                href={`/users/${member.id}`}
                 key={`chat-${props.chat.id}-user-${member.id}`}
-                className="buddies"
               >
-                <div className="avatar">
-                  {member.avatar.length > 10 ? (
-                    <img
-                      width="30px"
-                      height="30px"
-                      src={member.avatar}
-                      alt="gravatar profile"
-                    />
-                  ) : (
-                    <Image
-                      width="30px"
-                      height="30px"
-                      src={member.avatar}
-                      alt={`user avatar of a ${member.avatar.slice(1, -4)}`}
-                    />
-                  )}
-                </div>
-                <span>{member.name}</span>
-              </div>
+                {/* className="buddies"> */}
+                <a className="buddies">
+                  <div className="avatar">
+                    {member.avatar.length > 10 ? (
+                      <img
+                        width="30px"
+                        height="30px"
+                        src={member.avatar}
+                        alt="gravatar profile"
+                      />
+                    ) : (
+                      <Image
+                        width="30px"
+                        height="30px"
+                        src={member.avatar}
+                        alt={`user avatar of a ${member.avatar.slice(1, -4)}`}
+                      />
+                    )}
+                  </div>
+                  {member.name}
+                </a>
+              </Link>
+              // </div>
             );
           })}
           <br />
