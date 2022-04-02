@@ -162,8 +162,8 @@ export default function AblyChatComponent(props) {
 
   // scroll the message history to the bottom whenever the component renders
   useEffect(() => {
-    messageEnd.scrollIntoView({ behaviour: 'smooth' });
-  });
+    messageEnd.scrollIntoView({ behavior: 'smooth' });
+  }, [receivedMessages]);
 
   return (
     <div css={chatHolder}>
