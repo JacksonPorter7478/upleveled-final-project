@@ -24,7 +24,7 @@ import {
   Context,
   SecureUser,
   Security,
-  UserActivity,
+  UserActivityArgs,
   UserInfo,
 } from '../../util/types';
 import { createUserWithHash, signIn } from './resolverFunctions';
@@ -130,7 +130,7 @@ const resolvers = {
 
     async addUserActivities(
       parents: void,
-      args: UserActivity,
+      args: UserActivityArgs,
       context: Context,
     ) {
       if ('error' in context) {

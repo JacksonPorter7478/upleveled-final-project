@@ -1,4 +1,5 @@
 import { css } from '@emotion/react';
+import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -11,6 +12,13 @@ import {
   getUserById,
 } from '../../util/database';
 import matchUsers from '../../util/match';
+import {
+  ChatMember,
+  Chats,
+  UserActivity,
+  UserActivityArgs,
+  UserInfo,
+} from '../../util/types';
 
 const avatar = css`
   width: 100px;
@@ -64,7 +72,20 @@ const openChats = css`
   }
 `;
 
-export default function User(props) {
+type Props = {
+  userInfo: UserInfo;
+  userActivities: UserActivity[];
+  currentUser: UserInfo;
+  chats?: FullChat[];
+};
+
+type FullChat = {
+  id: number;
+  name: string;
+  buddies: ChatMember[];
+};
+
+export default function User(props: Props) {
   return (
     <>
       <Head>
@@ -177,11 +198,11 @@ export default function User(props) {
   );
 }
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   // check if there is already a valid token in the cookie
   const token = context.req.cookies.sessionToken;
   // get the user by token
-  const currentUser = await getFullUserByToken(token);
+  const currentUser: UserInfo | undefined = await getFullUserByToken(token);
   if (currentUser) {
     // if they are logged in but viewing SOMEONE ELSE'S PAGE
     if (Number(currentUser.id) !== Number(context.query.userId)) {
@@ -200,22 +221,28 @@ export async function getServerSideProps(context) {
         };
       }
       // if they are matched, get the user info
-      const userInfo = await getUserById(context.query.userId);
-      const userActivities = await getActivitiesByUserId(context.query.userId);
+      const userInfo: UserInfo = await getUserById(context.query.userId);
+      const userActivities: UserActivity[] = await getActivitiesByUserId(
+        context.query.userId,
+      );
+      // if they look at their match's page, no chat props is passed
       return {
         props: { userInfo, userActivities, currentUser },
       };
     }
+
     // if this is their OWN PAGE
-    const userActivities = await getActivitiesByUserId(currentUser.id);
+    const userActivities: UserActivity[] = await getActivitiesByUserId(
+      currentUser.id,
+    );
 
     // also get the chats they are in
-    const chats = await getChatsByUserId(currentUser.id);
+    const chats: Chats = await getChatsByUserId(currentUser.id);
 
     // and the users who are in those chats with them
-    let fullChatInfo = [];
+    let fullChatInfo: FullChat[] | [] = [];
     for (const chat of chats) {
-      const buddies = await getChatMembersByChatId(chat.id);
+      const buddies: ChatMember[] = await getChatMembersByChatId(chat.id);
       fullChatInfo = [...fullChatInfo, { ...chat, buddies }];
     }
     return {

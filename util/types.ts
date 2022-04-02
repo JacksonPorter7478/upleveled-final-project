@@ -13,6 +13,17 @@ export type UserInfo = {
   bio: string;
 };
 
+export type UserActivity = {
+  id: number;
+  title: string;
+};
+
+export type ChatMember = {
+  id: number;
+  name: string;
+  avatar: string;
+};
+
 export type Security = {
   email: string;
   pw: string;
@@ -21,10 +32,12 @@ export type Security = {
 
 export type SecureUser = UserInfo & Security;
 
-export type UserActivity = {
+export type UserActivityArgs = {
   userId: number;
   activityId: number;
 };
+
+export type Chats = { id: number; name: string }[];
 
 export type ChatUser = {
   userId: number;
