@@ -200,7 +200,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   if (currentUser) {
     // if they are logged in but viewing SOMEONE ELSE'S PAGE
     if (Number(currentUser.id) !== Number(context.query.userId)) {
-      // check if they are matched, if not - redirect
+      // check if they are matched -if not, redirect
+      // not done: check if they are in a chat together
       const matchIds = await matchUsers(currentUser.id);
       if (
         !matchIds.some(
