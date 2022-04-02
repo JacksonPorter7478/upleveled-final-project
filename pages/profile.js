@@ -31,6 +31,7 @@ const formStyles = css`
   textarea {
     display: block;
     width: 80%;
+    min-height: 70px;
     margin: 4vw;
   }
   input {
@@ -217,6 +218,56 @@ export default function Registration(props) {
             />
           </label>
 
+          <h2>Interests</h2>
+          <label>
+            Let other people know what kind of activities you're interested in:
+            <textarea
+              placeholder="e.g. Looking for some gym buddies"
+              minLength="50"
+              maxLength="300"
+              value={bio}
+              required
+              onChange={(event) => setBio(event.currentTarget.value)}
+            />
+          </label>
+          <div css={checkboxStyles}>
+            <h3>Your Categories</h3>
+            <p>Please choose at least 4</p>
+            {/* map over all activities from the database */}
+            {props.dbActivities.map((a) => {
+              return (
+                <div key={`register-activity-${a.id}`}>
+                  <input
+                    type="checkbox"
+                    id={a.title}
+                    checked={checked.find((c) => a.id === c.id).checked}
+                    onChange={(event) => {
+                      setChecked(
+                        checked.map((c) => {
+                          if (c.id === a.id) {
+                            return {
+                              id: c.id,
+                              checked: event.currentTarget.checked,
+                            };
+                          }
+                          return c;
+                        }),
+                      );
+                      const currentActivities = [...activities];
+
+                      setActivities(
+                        event.currentTarget.checked
+                          ? [...currentActivities, { id: a.id, title: a.title }]
+                          : currentActivities.filter((ca) => ca.id !== a.id),
+                      );
+                    }}
+                  />
+                  <label htmlFor={a.title}>{a.title}</label>
+                </div>
+              );
+            })}
+          </div>
+
           <h2 id="radio">Profile picture</h2>
           <p>Please choose an avatar</p>
           <div className="avatar">
@@ -287,56 +338,6 @@ export default function Registration(props) {
                 <img src={gravatar} alt="your gravatar profile" />
               </label>
             </div>
-          </div>
-
-          <h2>Interests</h2>
-          <label>
-            Let other people know what kind of activities you're interested in:
-            <textarea
-              placeholder="e.g. Looking for some gym buddies"
-              minLength="50"
-              maxLength="300"
-              value={bio}
-              required
-              onChange={(event) => setBio(event.currentTarget.value)}
-            />
-          </label>
-          <div css={checkboxStyles}>
-            <h3>Your Categories</h3>
-            <p>Please choose at least 4</p>
-            {/* map over all activities from the database */}
-            {props.dbActivities.map((a) => {
-              return (
-                <div key={`register-activity-${a.id}`}>
-                  <input
-                    type="checkbox"
-                    id={a.title}
-                    checked={checked.find((c) => a.id === c.id).checked}
-                    onChange={(event) => {
-                      setChecked(
-                        checked.map((c) => {
-                          if (c.id === a.id) {
-                            return {
-                              id: c.id,
-                              checked: event.currentTarget.checked,
-                            };
-                          }
-                          return c;
-                        }),
-                      );
-                      const currentActivities = [...activities];
-
-                      setActivities(
-                        event.currentTarget.checked
-                          ? [...currentActivities, { id: a.id, title: a.title }]
-                          : currentActivities.filter((ca) => ca.id !== a.id),
-                      );
-                    }}
-                  />
-                  <label htmlFor={a.title}>{a.title}</label>
-                </div>
-              );
-            })}
           </div>
         </div>
         {activityInputError && <h2>{activityInputError}</h2>}
