@@ -178,6 +178,7 @@ export default function AblyChatComponent(props) {
       </div>
       <form onSubmit={handleFormSubmission} className="form">
         <textarea
+          data-test-id="chatText"
           ref={inputFocus}
           value={messageText}
           placeholder="Type a message..."
@@ -186,7 +187,11 @@ export default function AblyChatComponent(props) {
           className="textarea"
           maxLength="600"
         />
-        <button className="button" disabled={messageTextIsEmpty}>
+        <button
+          className="button"
+          disabled={messageTextIsEmpty}
+          data-test-id="sendMessage"
+        >
           Send
         </button>
       </form>

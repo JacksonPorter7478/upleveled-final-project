@@ -95,6 +95,7 @@ export default function Header(props: Props) {
         <button
           onClick={() => setMenu(menu === 'closed' ? 'open' : 'closed')}
           aria-label="open menu"
+          data-test-id="openMenu"
         >
           <Image
             src={menu === 'closed' ? '/menuIcon.png' : '/closeMenuIcon.png'}
@@ -117,7 +118,9 @@ export default function Header(props: Props) {
             <a>About </a>
           </Link>
           <p>
-            <Anchor href="/logout">➞ Logout</Anchor>
+            <Anchor href="/logout" data-test-id="logout">
+              ➞ Logout
+            </Anchor>
           </p>
         </div>
         <div className="user">

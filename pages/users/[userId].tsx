@@ -155,7 +155,7 @@ export default function User(props: Props) {
                 You are not currently in any chats.
                 <br />
                 <Link href="/matches">
-                  <a>➞ Go to your matches</a>
+                  <a data-test-id="matches">➞ Go to your matches</a>
                 </Link>{' '}
               </p>
             )}

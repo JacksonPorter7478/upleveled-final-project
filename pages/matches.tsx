@@ -188,6 +188,7 @@ export default function Matches(props: Props) {
       ) : (
         // onClick the button shows(or hides) a chatName input field and all users are given some transparency (until they are selected)
         <button
+          data-test-id="chatOptions"
           css={openChatStyles}
           className="buttonStyles"
           onClick={() => {
@@ -211,6 +212,7 @@ export default function Matches(props: Props) {
             1. Give your chat a name:
             <br />
             <input
+              data-test-id="chatName"
               value={chatName}
               onChange={(event) => setChatName(event.currentTarget.value)}
               max-length="50"
@@ -231,7 +233,11 @@ export default function Matches(props: Props) {
           </p>
           {/* the openChat button shows up when at least one user is selected */}
           {chatMembers.length > 0 && (
-            <button onClick={() => openNewChat()} className="buttonStyles">
+            <button
+              onClick={() => openNewChat()}
+              className="buttonStyles"
+              data-test-id="createChat"
+            >
               Open chat
             </button>
           )}
@@ -256,6 +262,7 @@ export default function Matches(props: Props) {
             <div>
               {/* when chatOptions are visible, make each match selectable (add to chatMembers) and change the css */}
               <input
+                data-test-id={`chat-with-${m.matchInfo.name}`}
                 className={chatOptionsVisible}
                 type="checkbox"
                 disabled={chatOptionsVisible === 'invisible'}

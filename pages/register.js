@@ -240,6 +240,7 @@ export default function Registration(props) {
           <label>
             <h2>Name</h2>
             <input
+              data-test-id="username"
               required
               value={name}
               onChange={(event) => setName(event.currentTarget.value)}
@@ -250,6 +251,7 @@ export default function Registration(props) {
           <label>
             Let other people know what kind of activities you're interested in:
             <textarea
+              data-test-id="bio"
               required
               placeholder="e.g. Looking for some gym buddies"
               minLength="50"
@@ -267,6 +269,7 @@ export default function Registration(props) {
               return (
                 <div key={`register-activity-${a.id}`}>
                   <input
+                    data-test-id={`activities-${a.id}`}
                     type="checkbox"
                     id={a.title}
                     checked={checked.find((c) => a.id === c.id).checked}
@@ -307,6 +310,7 @@ export default function Registration(props) {
           <div className="avatar">
             <div>
               <input
+                data-test-id="avatar"
                 type="radio"
                 name="avatar"
                 id="duck"
@@ -378,6 +382,7 @@ export default function Registration(props) {
           <label>
             Email <br />
             <input
+              data-test-id="email"
               required
               type="email"
               value={email}
@@ -389,6 +394,7 @@ export default function Registration(props) {
             Password
             <br />
             <input
+              data-test-id="password"
               type="password"
               required
               value={pw}
@@ -399,7 +405,9 @@ export default function Registration(props) {
         </div>
         {errorInfo && <h2>{errorInfo}</h2>}
         {activityInputError && <h2>{activityInputError}</h2>}
-        <button className="buttonStyles">Sign up</button>
+        <button className="buttonStyles" data-test-id="register">
+          Sign up
+        </button>
       </form>
     </>
   );
