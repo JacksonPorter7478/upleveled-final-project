@@ -8,7 +8,9 @@ import {
   getChatMembersByChatId,
   getChatsByUserId,
   getFullUserByToken,
+  getUserById,
 } from '../../util/database';
+import matchUsers from '../../util/match';
 
 const avatar = css`
   width: 100px;
@@ -75,7 +77,9 @@ export default function User(props) {
       <div className="responsive flexColumn">
         <Header user={props.currentUser} />
         <h1 className="h1Font">
-          Welcome back, {props.currentUser.name}{' '}
+          {props.chats
+            ? `Welcome back, ${props.userInfo.name} `
+            : `${props.userInfo.name} `}
           <Image
             src="/paperIcon.png"
             width="40px"
@@ -84,28 +88,29 @@ export default function User(props) {
           />
         </h1>
         <div css={avatar}>
-          {props.currentUser.avatar.length > 10 ? (
+          {props.userInfo.avatar.length > 10 ? (
             <img
               width="100px"
               height="100px"
-              src={props.currentUser.avatar}
+              src={props.userInfo.avatar}
               alt="gravatar profile"
             />
           ) : (
             <Image
               width="100px"
               height="100px"
-              src={props.currentUser.avatar}
-              alt={`user avatar of a ${props.currentUser.avatar.slice(1, -4)}`}
+              src={props.userInfo.avatar}
+              alt={`user avatar of a ${props.userInfo.avatar.slice(1, -4)}`}
             />
           )}
         </div>
         <p>
-          {props.currentUser.bio}{' '}
-          <span>
-            {' '}
+          {props.userInfo.bio}{' '}
+          {props.chats && (
+            // <span>
             <Link href="/profile">
               <a>
+                {' '}
                 <Image
                   src="/editIcon.png"
                   alt=""
@@ -115,10 +120,11 @@ export default function User(props) {
                 />
               </a>
             </Link>
-          </span>
+            // </span>
+          )}
         </p>
         <p css={activity}>
-          {props.activities.map((a) => {
+          {props.userActivities.map((a) => {
             return (
               <span className="activity" key={`user-activities-${a.id}`}>
                 {a.title}
@@ -126,45 +132,46 @@ export default function User(props) {
             );
           })}
         </p>
-
-        <div css={openChats}>
-          <h2 className="h1Font">Current Chats</h2>
-          {props.chats.length === 0 && (
-            <p>
-              You are not currently in any chats.
-              <br />
-              <Link href="/matches">
-                <a>➞ Go to your matches</a>
-              </Link>{' '}
-            </p>
-          )}
-          {/* list all the chats they are a part of by chat name and list the names of all chat members*/}
-          {props.chats.map((chat) => {
-            return (
-              <div key={`user-${props.currentUser.id}-userChats-${chat.id}`}>
-                <p>
-                  <Link href={`/chats/${chat.id}`}>
-                    <a>{chat.name}</a>
-                  </Link>{' '}
-                  with{' '}
-                  {chat.buddies.map((buddy) => {
-                    if (buddy.id !== props.currentUser.id) {
-                      return (
-                        <span
-                          key={`${props.currentUser.id}-${chat.id}-${buddy.id}`}
-                        >
-                          {buddy.name}{' '}
-                        </span>
-                      );
-                    } else {
-                      return null;
-                    }
-                  })}
-                </p>
-              </div>
-            );
-          })}
-        </div>
+        {props.chats && (
+          <div css={openChats}>
+            <h2 className="h1Font">Current Chats</h2>
+            {props.chats.length === 0 && (
+              <p>
+                You are not currently in any chats.
+                <br />
+                <Link href="/matches">
+                  <a>➞ Go to your matches</a>
+                </Link>{' '}
+              </p>
+            )}
+            {/* list all the chats they are a part of by chat name and list the names of all chat members*/}
+            {props.chats.map((chat) => {
+              return (
+                <div key={`user-${props.userInfo.id}-userChats-${chat.id}`}>
+                  <p>
+                    <Link href={`/chats/${chat.id}`}>
+                      <a>{chat.name}</a>
+                    </Link>{' '}
+                    with{' '}
+                    {chat.buddies.map((buddy) => {
+                      if (buddy.id !== props.userInfo.id) {
+                        return (
+                          <span
+                            key={`${props.userInfo.id}-${chat.id}-${buddy.id}`}
+                          >
+                            {buddy.name}{' '}
+                          </span>
+                        );
+                      } else {
+                        return null;
+                      }
+                    })}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </>
   );
@@ -176,18 +183,33 @@ export async function getServerSideProps(context) {
   // get the user by token
   const currentUser = await getFullUserByToken(token);
   if (currentUser) {
+    // if they are logged in but viewing SOMEONE ELSE'S PAGE
     if (Number(currentUser.id) !== Number(context.query.userId)) {
+      // check if they are matched, if not - redirect
+      const matchIds = await matchUsers(currentUser.id);
+      if (
+        !matchIds.some(
+          (matchId) => Number(matchId) === Number(context.query.userId),
+        )
+      ) {
+        return {
+          redirect: {
+            destination: `/users/${currentUser.id}`,
+            permanent: false,
+          },
+        };
+      }
+      // if they are matched, get the user info
+      const userInfo = await getUserById(context.query.userId);
+      const userActivities = await getActivitiesByUserId(context.query.userId);
       return {
-        redirect: {
-          destination: `/users/${currentUser.id}`,
-          permanent: false,
-        },
+        props: { userInfo, userActivities, currentUser },
       };
     }
-    // get their activities
-    const activities = await getActivitiesByUserId(currentUser.id);
+    // if this is their OWN PAGE
+    const userActivities = await getActivitiesByUserId(currentUser.id);
 
-    // get the chats they are in
+    // also get the chats they are in
     const chats = await getChatsByUserId(currentUser.id);
 
     // and the users who are in those chats with them
@@ -196,9 +218,13 @@ export async function getServerSideProps(context) {
       const buddies = await getChatMembersByChatId(chat.id);
       fullChatInfo = [...fullChatInfo, { ...chat, buddies }];
     }
-
     return {
-      props: { currentUser, activities, chats: fullChatInfo },
+      props: {
+        userInfo: currentUser,
+        userActivities,
+        currentUser,
+        chats: fullChatInfo,
+      },
     };
   }
 
