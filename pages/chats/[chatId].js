@@ -11,8 +11,14 @@ import {
   getChatMembersByChatId,
   getFullUserByToken,
   getMessagesByChatId,
+  getUserById,
 } from '../../util/database';
-import { chatUserDeleteMutation, deleteChatMutation } from '../api/client';
+import matchUsers from '../../util/match';
+import {
+  chatUserDeleteMutation,
+  chatUserMutation,
+  deleteChatMutation,
+} from '../api/client';
 
 // this chat component isn't suitable for Server Side Rendering. By default, Next.js attempts to render everything on the server side
 // by using a dynamic() call, we can tell Next.js not to render this during the build process,
@@ -25,6 +31,7 @@ const AblyChatComponent = dynamic(
 
 const members = css`
   width: 100%;
+  margin-bottom: 10px;
   .buddies {
     display: inline-flex;
     align-items: center;
@@ -35,6 +42,15 @@ const members = css`
     border-radius: 50%;
     overflow: hidden;
     margin: 10px;
+  }
+  .addMember {
+    background-color: transparent;
+    border-radius: 4px;
+    margin-left: 5px;
+    :hover,
+    :focus {
+      border: 3px solid #389583;
+    }
   }
 `;
 
@@ -94,6 +110,8 @@ const h1 = css`
 `;
 
 export default function TestChat(props) {
+  const [newMemberId, setNewMemberId] = useState();
+  const [chatMembers, setChatMembers] = useState(props.chatMembers);
   // this is asks 'are you sure you want to delete/leave the chat?'
   const [popup, setPopup] = useState('closed');
   // custom error message
@@ -102,6 +120,13 @@ export default function TestChat(props) {
   // MUTATIONS
   const [deleteUserFromChat] = useMutation(chatUserDeleteMutation);
   const [deleteChatFromDb] = useMutation(deleteChatMutation);
+  const [addMember] = useMutation(chatUserMutation);
+
+  // the current user can add someone to the chat, if they are the chat admin
+  // and if there are fewer than 5 people in the chat with them
+  // otherwise this section won't show
+  const displayAddToChat =
+    chatMembers.length < 5 && props.chat.userId === props.currentUser.id;
 
   async function leaveChat() {
     // delete the current user from the chat_users table, so they are no longer part of this chat, then redirect
@@ -124,6 +149,24 @@ export default function TestChat(props) {
         },
       });
       await router.push(`/matches`);
+    } catch (err) {
+      setErrorInfo('Oh no! There has been an issue. Please try again later.');
+    }
+  }
+
+  async function addNewChatMember(event) {
+    event.preventDefault();
+    try {
+      await addMember({
+        variables: {
+          userId: newMemberId,
+          chatId: props.chat.id,
+        },
+      });
+      setChatMembers([
+        ...chatMembers,
+        props.matches.find((match) => Number(match.id) === Number(newMemberId)),
+      ]);
     } catch (err) {
       setErrorInfo('Oh no! There has been an issue. Please try again later.');
     }
@@ -182,7 +225,7 @@ export default function TestChat(props) {
           <div css={members}>
             Buddies in this chat:
             <br />
-            {props.chatMembers.map((member) => {
+            {chatMembers.map((member) => {
               return (
                 <div
                   key={`chat-${props.chat.id}-user-${member.id}`}
@@ -210,7 +253,36 @@ export default function TestChat(props) {
               );
             })}
             <br />
+            {displayAddToChat && (
+              <form>
+                Invite someone else into the chat:{' '}
+                <select
+                  onChange={(event) =>
+                    setNewMemberId(event.currentTarget.value)
+                  }
+                >
+                  <option>----</option>
+                  {props.matches.map((match) => {
+                    return (
+                      <option
+                        key={`invite-${match.id}-to-${props.chat.id}`}
+                        value={match.id}
+                      >
+                        {match.name}
+                      </option>
+                    );
+                  })}
+                </select>
+                <button
+                  className="addMember"
+                  onClick={(event) => addNewChatMember(event)}
+                >
+                  Add
+                </button>
+              </form>
+            )}
           </div>
+
           {/* this is the actual chat component, pass the chatId, all its messages and current user to it */}
           <AblyChatComponent
             chatId={props.chat.id}
@@ -250,12 +322,20 @@ export async function getServerSideProps(context) {
         },
       };
     }
-    // this is faster than the graphql API route
+    // get all chat messages
     const chatHistory = await getMessagesByChatId(chat.id);
+    // get the current user's matches
+    const matchIds = await matchUsers(currentUser.id);
+    let matches = [];
+    for (const matchId of matchIds) {
+      const match = await getUserById(matchId);
+      matches = [...matches, match];
+    }
     // if there is a logged in user who is part of this chat
     return {
       props: {
         currentUser,
+        matches,
         chat,
         chatMembers: chatMembers.filter(
           (member) => member.id !== currentUser.id,
