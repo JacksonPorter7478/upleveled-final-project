@@ -61,8 +61,23 @@ const activity = css`
 
 const openChats = css`
   width: 100%;
+  font-size: 20px;
+  line-height: 2;
   h2 {
     margin: 25px;
+  }
+  .buddies {
+    font-size: 16px;
+    display: inline-flex;
+    transform: translateY(8px);
+  }
+  .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 10px;
+    align-items: center;
   }
 `;
 
@@ -149,7 +164,7 @@ export default function User(props: Props) {
         </p>
         {props.chats && (
           <div css={openChats}>
-            <h2 className="h1Font">Current Chats</h2>
+            <h2 className="h1Font">Your Chats</h2>
             {props.chats.length === 0 && (
               <p>
                 You are not currently in any chats.
@@ -171,11 +186,39 @@ export default function User(props: Props) {
                     {chat.buddies.map((buddy) => {
                       if (buddy.id !== props.userInfo.id) {
                         return (
-                          <span
+                          <Link
+                            href={`/users/${buddy.id}`}
                             key={`${props.userInfo.id}-${chat.id}-${buddy.id}`}
                           >
-                            {buddy.name}{' '}
-                          </span>
+                            <a className="buddies">
+                              <div className="avatar">
+                                {buddy.avatar.length > 10 ? (
+                                  <img
+                                    width="30px"
+                                    height="30px"
+                                    src={buddy.avatar}
+                                    alt="gravatar profile"
+                                  />
+                                ) : (
+                                  <Image
+                                    width="30px"
+                                    height="30px"
+                                    src={buddy.avatar}
+                                    alt={`user avatar of a ${buddy.avatar.slice(
+                                      1,
+                                      -4,
+                                    )}`}
+                                  />
+                                )}
+                              </div>
+                              {buddy.name}
+                            </a>
+                          </Link>
+                          // <span
+                          //   key={`${props.userInfo.id}-${chat.id}-${buddy.id}`}
+                          // >
+                          //   {buddy.name}{' '}
+                          // </span>
                         );
                       } else {
                         return null;

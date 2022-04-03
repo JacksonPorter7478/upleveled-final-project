@@ -248,7 +248,6 @@ export default function TestChat(props: Props) {
                 href={`/users/${member.id}`}
                 key={`chat-${props.chat.id}-user-${member.id}`}
               >
-                {/* className="buddies"> */}
                 <a className="buddies">
                   <div className="avatar">
                     {member.avatar.length > 10 ? (
