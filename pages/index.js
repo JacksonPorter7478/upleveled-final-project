@@ -107,7 +107,7 @@ const homeStyles = css`
       border-radius: 4px;
       padding: 8px;
       margin-bottom: 80px;
-
+      text-align: center;
       h2,
       p {
         margin: 0;
