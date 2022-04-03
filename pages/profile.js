@@ -344,7 +344,11 @@ export default function Registration(props) {
         {error && <h2>{error}</h2>}
         <button className="buttonStyles">Save</button>
       </form>
-      <button css={deleteStyles} onClick={() => deleteUserAccount()}>
+      <button
+        css={deleteStyles}
+        onClick={() => deleteUserAccount()}
+        data-test-id="delete-user"
+      >
         Delete my profile
       </button>
     </>

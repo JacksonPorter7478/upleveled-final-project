@@ -19,6 +19,7 @@ export default function Goodbye() {
       <br />
       <Link href="/">
         <a
+          data-test-id="back-to-home"
           style={{
             textDecoration: 'none',
             alignItems: 'center',

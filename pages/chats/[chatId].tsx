@@ -200,14 +200,20 @@ export default function TestChat(props: Props) {
         {props.currentUser.id === props.chat.userId ? (
           <div css={top}>
             <div className={`popup ${popup}`}>
-              Are you sure you want to permanently delete this chat and all the
-              messages in it?
+              <p>
+                Are you sure you want to permanently delete this chat and all
+                the messages in it?
+              </p>
               <div>
-                <button onClick={() => deleteChat()}>Delete</button>
+                <button onClick={() => deleteChat()} data-test-id="delete">
+                  Delete
+                </button>
                 <button onClick={() => setPopup('closed')}>Cancel</button>
               </div>
             </div>
-            <button onClick={() => setPopup('open')}>Delete this chat</button>
+            <button onClick={() => setPopup('open')} data-test-id="delete-chat">
+              Delete this chat
+            </button>
           </div>
         ) : (
           <div css={top}>

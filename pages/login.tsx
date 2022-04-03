@@ -127,6 +127,7 @@ export default function Login(props: { csrfToken: string }) {
             Email
             <br />
             <input
+              data-test-id="email"
               type="email"
               required
               value={email}
@@ -138,6 +139,7 @@ export default function Login(props: { csrfToken: string }) {
             Password
             <br />
             <input
+              data-test-id="password"
               type="password"
               required
               value={pw}
@@ -146,7 +148,9 @@ export default function Login(props: { csrfToken: string }) {
           </label>
           <br />
         </div>
-        <button className="buttonStyles">Sign in</button>
+        <button className="buttonStyles" data-test-id="login">
+          Sign in
+        </button>
       </form>
     </>
   );

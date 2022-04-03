@@ -124,7 +124,7 @@ export default function User(props: Props) {
           {props.chats && (
             // <span>
             <Link href="/profile">
-              <a>
+              <a data-test-id="edit">
                 {' '}
                 <Image
                   src="/editIcon.png"

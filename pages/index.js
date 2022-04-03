@@ -220,7 +220,7 @@ export default function Dashboard() {
             <h1 className="h1Font">Buddies</h1>
           </div>
           <div className="bottom flexColumn">
-            <h2 className="h1Font"> Find your people</h2>
+            <h2 className="h1Font">Find your people</h2>
             <Link href="/register">
               <a className="buttonStyles" data-test-id="register">
                 Sign up
@@ -229,7 +229,7 @@ export default function Dashboard() {
             <p>
               You already have an account?{' '}
               <Link href="/login">
-                <a>Sign in</a>
+                <a data-test-id="login">Sign in</a>
               </Link>
             </p>
           </div>

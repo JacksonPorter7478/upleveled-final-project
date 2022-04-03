@@ -112,7 +112,7 @@ export default function Header(props: Props) {
             <a>Matches</a>
           </Link>
           <Link href="/profile">
-            <a>Profile </a>
+            <a data-test-id="edit">Profile </a>
           </Link>
           <Link href="/about">
             <a>About </a>
