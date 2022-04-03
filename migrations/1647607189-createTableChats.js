@@ -3,7 +3,7 @@ exports.up = async (sql) => {
 		CREATE TABLE chats (
 			id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
 			name varchar(50) NOT NULL,
-			user_id integer REFERENCES users (id)
+			user_id integer REFERENCES users(id) ON DELETE CASCADE
 		)`;
 };
 
