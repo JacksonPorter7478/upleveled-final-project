@@ -88,7 +88,8 @@ const chatHolder = css`
 export default function AblyChatComponent(props) {
   const [messageText, setMessageText] = useState('');
   const [receivedMessages, setReceivedMessages] = useState(props.chatHistory);
-  const inputFocus = useRef(null);
+  const inputFieldRef = useRef(null);
+  const messageEndRef = useRef(null);
   const [saveMessage] = useMutation(createMsgMutation);
 
   const messageTextIsEmpty = messageText.trim().length === 0;
@@ -127,7 +128,7 @@ export default function AblyChatComponent(props) {
     }
 
     setMessageText('');
-    inputFocus.current.focus();
+    inputFieldRef.current.focus();
   }
 
   async function handleFormSubmission(event) {
@@ -162,7 +163,11 @@ export default function AblyChatComponent(props) {
 
   // scroll the message history to the bottom whenever the component renders
   useEffect(() => {
-    messageEnd.scrollIntoView({ behavior: 'smooth' });
+    messageEndRef.current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'start',
+    });
   }, [receivedMessages]);
 
   return (
@@ -170,16 +175,14 @@ export default function AblyChatComponent(props) {
       <div className="chatText">
         {messages}
         {/* empty div to control scroll to bottom: */}
-        <div
-          ref={(element) => {
-            messageEnd = element;
-          }}
-        />
+        <div>
+          <div ref={messageEndRef} />
+        </div>
       </div>
       <form onSubmit={handleFormSubmission} className="form">
         <textarea
           data-test-id="chatText"
-          ref={inputFocus}
+          ref={inputFieldRef}
           value={messageText}
           placeholder="Type a message..."
           onChange={(event) => setMessageText(event.target.value)}
