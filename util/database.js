@@ -376,6 +376,17 @@ export async function deleteMessages(chatId) {
   `;
   return camelcaseKeys(message[0]);
 }
+export async function deleteMessagesFromUser(userId) {
+  const message = await sql`
+    DELETE FROM
+    messages
+  WHERE
+    user_id = ${userId}
+  RETURNING
+    *
+  `;
+  return camelcaseKeys(message[0]);
+}
 
 export async function getMessagesByChatId(chatId) {
   const message = await sql`
