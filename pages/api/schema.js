@@ -80,6 +80,8 @@ export const typeDefs = gql`
 
     storeMessage(chatId: ID!, content: String!, name: String!): Message
 
+    deleteAllUserMessages(userId: ID!): Id
+
     deleteChatAndMessages(chatId: ID!): Chat
   }
 `;

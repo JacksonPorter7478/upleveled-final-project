@@ -146,6 +146,14 @@ export const createMsgMutation = gql`
   }
 `;
 
+export const deleteMsgMutation = gql`
+  mutation ($userId: ID!) {
+    deleteAllUserMessages(userId: $userId) {
+      id
+    }
+  }
+`;
+
 export const messageHistoryQuery = gql`
   query ($chatId: ID!) {
     messageHistory(chatId: $chatId) {

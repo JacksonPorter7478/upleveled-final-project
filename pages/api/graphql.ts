@@ -6,6 +6,7 @@ import {
   createMessage,
   deleteChat,
   deleteMessages,
+  deleteMessagesFromUser,
   deleteUserActivities,
   deleteUserFromChat,
   deleteUserFromDb,
@@ -216,6 +217,21 @@ const resolvers = {
         args.content,
         args.name,
       );
+    },
+
+    async deleteAllUserMessages(
+      parents: void,
+      args: { userId: number },
+      context: Context,
+    ) {
+      if ('error' in context) {
+        return { error: context.error };
+      }
+      if (Number(args.userId) !== Number(context.session.userId)) {
+        return { error: "You can't delete someone else's messages!" };
+      }
+
+      return await deleteMessagesFromUser(context.session.userId);
     },
 
     async deleteChatAndMessages(
