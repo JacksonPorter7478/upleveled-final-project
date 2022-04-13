@@ -8,11 +8,14 @@ import Header from '../components/Header';
 import {
   getActivities,
   getActivitiesByUserId,
+  getChatsByUserId,
   getSessionByToken,
   getUserById,
 } from '../util/database';
 import {
   addActivity,
+  deleteChatMutation,
+  deleteMsgMutation,
   deleteMutation,
   deleteUserActivities,
   updateMutation,
@@ -129,6 +132,8 @@ export default function Registration(props) {
   const [deleteActivities] = useMutation(deleteUserActivities);
   const [updateActivities] = useMutation(addActivity);
   const [updateUser] = useMutation(updateMutation);
+  const [deleteMsg] = useMutation(deleteMsgMutation);
+  const [deleteChats] = useMutation(deleteChatMutation);
 
   const id = props.currentUser.id;
   // md5 hash for the gravatar image
@@ -176,6 +181,13 @@ export default function Registration(props) {
 
   async function deleteUserAccount() {
     try {
+      // delete all their messages
+      await deleteMsg({ variables: { userId: id } });
+      // delete the chats they opened
+      for (const chat of props.openedChats) {
+        await deleteChats({ variables: { chatId: chat.id } });
+      }
+      // // delete their account
       await deleteAccount({ variables: { id: id } });
       await router.push('/goodbye');
     } catch (err) {
@@ -368,11 +380,14 @@ export async function getServerSideProps(context) {
       const dbActivities = await getActivities();
       // get the list of activities the user chose
       const chosenActivities = await getActivitiesByUserId(currentUser.id);
+      // get all the chats the user has opened
+      const openedChats = await getChatsByUserId(session.userId);
       return {
         props: {
           currentUser,
           dbActivities,
           chosenActivities,
+          openedChats,
         },
       };
     }
