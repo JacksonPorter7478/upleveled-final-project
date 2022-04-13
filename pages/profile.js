@@ -102,13 +102,59 @@ const checkboxStyles = css`
 `;
 
 const deleteStyles = css`
-  padding: 2px 6px;
-  margin-top: 50px;
-  border: 2px solid black;
-  border-radius: 4px;
-  background-color: transparent;
-  :hover {
-    border: 2px solid cadetblue;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  a {
+    text-decoration: none;
+    color: black;
+  }
+  button {
+    padding: 2px 6px;
+    margin-top: 50px;
+    border: 2px solid black;
+    border-radius: 4px;
+    background-color: transparent;
+    :hover {
+      border: 2px solid #05396b;
+    }
+  }
+  .popup {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+  .popup.open {
+    z-index: 1;
+    width: 75vw;
+    max-width: 400px;
+    height: min-content;
+    padding: 10px;
+    position: absolute;
+    bottom: 20vh;
+    left: 6.5vw;
+    background-color: #ebebeb;
+    border: 2px solid #05396b;
+    border-radius: 4px;
+    font-size: 24px;
+    p {
+      margin: 0;
+    }
+    div {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      button {
+        margin: 15px 0;
+        font-size: inherit;
+        text-decoration: none;
+        border: 2px solid #05396b;
+      }
+    }
   }
 `;
 
@@ -126,6 +172,8 @@ export default function Registration(props) {
       return { id: a.id, checked: activities.some((b) => b.id === a.id) };
     }),
   );
+  // this is asks 'are you sure you want to delete your profile?'
+  const [popup, setPopup] = useState('closed');
   const router = useRouter();
   // MUTATIONS
   const [deleteAccount] = useMutation(deleteMutation);
@@ -356,13 +404,24 @@ export default function Registration(props) {
         {error && <h2>{error}</h2>}
         <button className="buttonStyles">Save</button>
       </form>
-      <button
-        css={deleteStyles}
-        onClick={() => deleteUserAccount()}
-        data-test-id="delete-user"
-      >
-        Delete my profile
-      </button>
+
+      <div css={deleteStyles}>
+        <div className={`popup ${popup}`}>
+          <p>
+            Are you sure you want to permanently delete all your messages, the
+            chats you have opened and your profile information?
+          </p>
+          <div>
+            <button onClick={() => deleteUserAccount()} data-test-id="delete">
+              Delete
+            </button>
+            <button onClick={() => setPopup('closed')}>Cancel</button>
+          </div>
+        </div>
+        <button onClick={() => setPopup('open')} data-test-id="delete-user">
+          Delete my profile
+        </button>
+      </div>
     </>
   );
 }
