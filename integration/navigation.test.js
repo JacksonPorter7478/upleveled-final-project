@@ -108,6 +108,7 @@ test('registration, login, matching, open chat, logout, delete user', async () =
 
   // delete user 'Lena' and be redirected to goodbye page
   await expect(page).toClick('[data-test-id="delete-user"]');
+  await expect(page).toClick('[data-test-id="delete"]');
   await page.waitForNavigation();
   expect(page.url()).toBe(`${baseUrl}/goodbye`);
   await expect(page).toMatch('All the best for your future adventures!');
@@ -145,6 +146,7 @@ test('registration, login, matching, open chat, logout, delete user', async () =
 
   // delete user 'Katharina' and be redirected to goodbye page
   await expect(page).toClick('[data-test-id="delete-user"]');
+  await expect(page).toClick('[data-test-id="delete"]');
   await page.waitForNavigation();
   expect(page.url()).toBe(`${baseUrl}/goodbye`);
   await expect(page).toMatch('All the best for your future adventures!');
